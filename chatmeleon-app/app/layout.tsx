@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import ToasterContext from './context/ToasterContext';
 import AuthContext from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 const poppins = Poppins({ 
   subsets: ['latin'],
@@ -22,10 +23,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.className}>
       <body>
-        <AuthContext>
-          <ToasterContext />
-          {children}
-        </AuthContext>
+        <ThemeProvider>
+          <AuthContext>
+            <ToasterContext />
+            {children}
+          </AuthContext>
+        </ThemeProvider>
       </body>
     </html>
   )
