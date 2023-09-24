@@ -7,7 +7,16 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    colors: {
+      transparant: 'transparant',
+      white: '#ffffff',
+      black: '#000000',
+      'lavenderLizard': {
+        light: '#d4c9e3',
+        DEFAULT: '#503a8f',
+        dark: '#2f2465'
+      }
+    }
   },
   plugins: [
     require("@tailwindcss/forms")({
