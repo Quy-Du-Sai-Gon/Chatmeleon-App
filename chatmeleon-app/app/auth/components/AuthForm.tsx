@@ -57,8 +57,9 @@ const AuthForm = () => {
         setIsLoading(true);
         if (variant == `REGISTER`) {
             axios.post('/api/register', data)
+            .then(() => signIn('credentials', data))
             .catch(() => toast.error('Something went wrong!'))
-            .finally(() => setIsLoading(false))
+            .finally(() => setIsLoading(false));
         }
 
         if (variant == `LOGIN`) {
