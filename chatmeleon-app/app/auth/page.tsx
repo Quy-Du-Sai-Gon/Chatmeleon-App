@@ -17,11 +17,11 @@ export default function Login() {
       >
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <Image
-            alt="Black White Logo"
+            alt="Violet BG Logo"
             height="90"
             width="90"
             className="mx-auto w-auto"
-            src="/images/logo-black&white-1.png"
+            src="/images/logo/violet_BG.png"
           />
           <h2
             className="
