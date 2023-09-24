@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from "clsx";
-
+import { useTheme } from "@/app/context/ThemeContext";
 interface ButtonProps {
     type?: 'button' | 'submit' | 'reset' | undefined;
     fullWidth?: boolean;
@@ -21,6 +21,8 @@ const Button: React.FC<ButtonProps> = ({
     danger,
     disabled
 }) => {
+    const theme = useTheme();
+    
     return (
         <div>
             <button
@@ -43,7 +45,7 @@ const Button: React.FC<ButtonProps> = ({
                 fullWidth && "w-full",
                 secondary ? 'text-gray-900' : 'text-white',
                 danger && "bg-rose-500 hover:bg-rose-600 focus-visible:outline-rose-600",
-                !secondary && !danger && "bg-sky-500 hover:bg-sky-600 focus-visible:outline-sky-600"
+                !secondary && !danger && "bg-lavenderLizard hover:bg-lavenderLizard-dark focus-visible:outline-lavenderLizard-light"
                 )}
             >
                 {children}
