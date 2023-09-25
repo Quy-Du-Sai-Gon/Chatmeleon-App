@@ -6,17 +6,33 @@ import React, { createContext, useContext, ReactNode } from 'react';
 
 // Define your theme object
 interface Theme {
-  darkLavenderLizardColor1: string;
-  normalLavenderLizardColor1: string;
-  brightLavenderLizardColor1: string;
+  lightLavenderLizardColor: string;
+  defaultLavenderLizardColor: string;
+  darkLavenderLizardColor: string;
+
+  lightCrimsonCrawlerColor: string;
+  defaultCrimsonCrawlerColor: string;
+  darkCrimsonCrawlerColor: string;
+
+  lightSunnySerpentColor: string;
+  defaultSunnySerpentColor: string;
+  darkSunnySerpentColor: string;
   // Add more theme properties as needed
 }
 
 // Define a default theme
 const defaultTheme: Theme = {
-    darkLavenderLizardColor1: "#2f2465",
-    normalLavenderLizardColor1: "#503a8f",
-    brightLavenderLizardColor1: "#d4c9e3",
+    lightLavenderLizardColor: "#d4c9e3",
+    defaultLavenderLizardColor: "#503a8f",
+    darkLavenderLizardColor: "#2f2465",
+
+    lightCrimsonCrawlerColor: '#e697b0',
+    defaultCrimsonCrawlerColor: '#9d143b',
+    darkCrimsonCrawlerColor: '#5d0828',
+  
+    lightSunnySerpentColor: '#ffedb4',
+    defaultSunnySerpentColor: '#fed23f',
+    darkSunnySerpentColor: '#e18923'
 };
 
 // Create a context for the theme

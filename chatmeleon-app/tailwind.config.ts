@@ -15,6 +15,16 @@ const config: Config = {
         light: '#d4c9e3',
         DEFAULT: '#503a8f',
         dark: '#2f2465'
+      },
+      'crimsonCrawler': {
+        light: '#e697b0',
+        DEFAULT: '#9d143b',
+        dark: '#5d0828'
+      },
+      'sunnySerpent': {
+        light: '#ffedb4',
+        DEFAULT: '#fed23f',
+        dark: '#e18923'
       }
     }
   },
