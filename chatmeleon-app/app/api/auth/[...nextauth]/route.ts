@@ -1,14 +1,15 @@
+// Import dependencies and providers
 import bcrypt from "bcrypt";
-import NextAuth, {NextAuthOptions} from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google"
+import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import prisma from "@/app/libs/prismadb";
 
-
+// Define authentication options
 export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(prisma),
+    adapter: PrismaAdapter(prisma), // Use PrismaAdapter with your Prisma instance
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -21,13 +22,13 @@ export const authOptions: NextAuthOptions = {
                 password: { label: 'password', type: 'password' },
             },
             async authorize(credentials) {
-
                 const { email, password } = credentials as { email: string; password: string }
 
                 if (!email || !password) {
                     throw new Error('Invalid credentials');
                 }
 
+                // Fetch the user from your Prisma database using the provided email
                 const user = await prisma.user.findUnique({
                     where: {
                         email: email
@@ -38,6 +39,7 @@ export const authOptions: NextAuthOptions = {
                     throw new Error('Invalid credentials');
                 }
 
+                // Compare the provided password with the hashed password from the database
                 const isCorrectPassword = await bcrypt.compare(
                     password,
                     user.hashedPassword
@@ -46,18 +48,20 @@ export const authOptions: NextAuthOptions = {
                 if (!isCorrectPassword) {
                     throw new Error('Invalid credentials');
                 }
-                
-                return user;
+
+                return user; // Return the user object if authentication is successful
             }
         }),
     ],
-    debug: process.env.NODE_ENV == 'development',
+    debug: process.env.NODE_ENV == 'development', // Enable debugging in development mode
     session: {
         strategy: "jwt",
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET, // Secret key for session
 };
 
+// Create the authentication handler
 const handler = NextAuth(authOptions);
 
+// Export the handler for both GET and POST requests
 export { handler as GET, handler as POST };

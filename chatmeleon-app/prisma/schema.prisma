@@ -1,22 +1,26 @@
+// Define the Prisma client
 generator client {
   provider = "prisma-client-js"
 }
 
+// Define the MongoDB data source
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
+// Define the User model
 model User {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   name String?
-  email String? @unique
+  email String? @unique // User's email (must be unique)
   emailVerified DateTime?
   image String?
   hashedPassword String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Define relationships
   conversationsIds String[] @db.ObjectId
   conversations Conversation[] @relation(fields: [conversationsIds], references: [id])
 
@@ -27,15 +31,16 @@ model User {
   messages Message[]
 }
 
+// Define the Account model
 model Account {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   userId String @db.ObjectId
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type String
-  provider String
-  providerAccountId String
+  type String // Type of account
+  provider String // Authentication provider
+  providerAccountId String // Identifier from the authentication provider
   refresh_token String? @db.String
   access_token String? @db.String
   expires_at Int?
@@ -44,9 +49,11 @@ model Account {
   id_token String? @db.String
   session_state String?
 
+  // Ensure unique combinations of provider and providerAccountId
   @@unique([provider, providerAccountId])
 }
 
+// Define the Conversation model
 model Conversation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
@@ -54,6 +61,7 @@ model Conversation {
   name String?
   isGroup Boolean?
 
+  // Define relationships
   messagesIds String[]  @db.ObjectId
   messages Message[]
 
@@ -61,12 +69,14 @@ model Conversation {
   users User[] @relation(fields: [userIds], references: [id])
 }
 
+// Define the Message model
 model Message {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   body String?
   image String?
   createdAt DateTime @default(now())
 
+  // Define relationships
   seenIds String[] @db.ObjectId
   seen User[] @relation("Seen", fields: [seenIds], references: [id])
 

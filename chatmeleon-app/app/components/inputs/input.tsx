@@ -1,5 +1,6 @@
 'use client';
 
+// Import dependencies
 import clsx from "clsx";
 import {
     FieldErrors,
@@ -7,17 +8,18 @@ import {
     UseFormRegister
 } from 'react-hook-form';
 
+// Define the props interface for the Input component
 interface InputProps {
-    label: string;
-    id: string;
-    type?: string;
-    required?: boolean;
-    register: UseFormRegister<FieldValues>,
-    errors: FieldErrors,
-    disabled?: boolean;
+    label: string; // Label for the input field
+    id: string; // ID for the input field
+    type?: string; // Input field type (default is text)
+    required?: boolean; // Indicates if the field is required
+    register: UseFormRegister<FieldValues>; // React Hook Form register function
+    errors: FieldErrors; // Errors from React Hook Form validation
+    disabled?: boolean; // Indicates if the input is disabled
 }
 
-
+// Define the Input component
 const Input: React.FC<InputProps> = ({
     label,
     id,
@@ -75,4 +77,5 @@ const Input: React.FC<InputProps> = ({
     )
 }
 
+// Export the Input component for reuse
 export default Input;

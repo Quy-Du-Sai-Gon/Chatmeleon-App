@@ -1,10 +1,9 @@
 'use client';
 
-// ThemeContext.tsx
-
+// Import the necessary dependencies
 import React, { createContext, useContext, ReactNode } from 'react';
 
-// Define your theme object
+// Define theme object
 interface Theme {
   lightLavenderLizardColor: string;
   defaultLavenderLizardColor: string;

@@ -1,6 +1,8 @@
-import Image from "next/image"
-import AuthForm from "./components/AuthForm"
+// Import dependencies and components
+import Image from "next/image";
+import AuthForm from "./components/AuthForm";
 
+// Define the Login component
 export default function Login() {
     return (
       <div
@@ -16,6 +18,7 @@ export default function Login() {
         "
       >
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          {/* Display the logo */}
           <Image
             alt="Violet BG Logo"
             height="90"
@@ -36,6 +39,7 @@ export default function Login() {
             Sign in to your Chameleon account
           </h2>
         </div>
+         {/* Render the AuthForm component for user authentication */}
         <AuthForm/>
       </div>
     )

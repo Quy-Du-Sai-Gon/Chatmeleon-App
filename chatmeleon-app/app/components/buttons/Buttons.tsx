@@ -1,17 +1,21 @@
 'use client';
 
+// Import dependencies
 import clsx from "clsx";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/app/context/ThemeContext"; // Assuming this is a custom theme context
+
+// Define the props interface for the Button component
 interface ButtonProps {
-    type?: 'button' | 'submit' | 'reset' | undefined;
-    fullWidth?: boolean;
-    children?: React.ReactNode;
-    onClick?: () => void;
-    secondary?: boolean;
-    danger?: boolean;
-    disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset' | undefined; // Button type attribute
+    fullWidth?: boolean; // Indicates if the button should take full width
+    children?: React.ReactNode; // Content within the button
+    onClick?: () => void; // Click event handler
+    secondary?: boolean; // Indicates secondary button style
+    danger?: boolean; // Indicates danger button style
+    disabled?: boolean; // Indicates if the button is disabled
 }
 
+// Define the Button component
 const Button: React.FC<ButtonProps> = ({
     type,
     fullWidth,
@@ -21,7 +25,7 @@ const Button: React.FC<ButtonProps> = ({
     danger,
     disabled
 }) => {
-    const theme = useTheme();
+    const theme = useTheme(); // Custom theme context hook
     
     return (
         <div>
@@ -54,4 +58,5 @@ const Button: React.FC<ButtonProps> = ({
     );
 }
 
+// Export the Button component for reuse
 export default Button;
