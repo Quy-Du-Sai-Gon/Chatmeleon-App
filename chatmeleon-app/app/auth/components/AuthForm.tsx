@@ -69,6 +69,7 @@ const AuthForm = () => {
 
           if (callback?.ok && !callback?.error) {
             toast.success("Logged In!");
+            router.push("/conversations");
           }
         })
         .finally(() => setIsLoading(false));
