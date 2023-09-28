@@ -36,7 +36,7 @@ export default function Login() {
               text-gray-900
               "
           >
-            Sign in to your Chameleon account
+            Sign in to your Chatmeleon account
           </h2>
         </div>
          {/* Render the AuthForm component for user authentication */}
