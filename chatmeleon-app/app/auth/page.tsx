@@ -24,7 +24,7 @@ export default function Login() {
           height="90"
           width="90"
           className="mx-auto w-auto"
-          src="/images/logo/violet_BG.png"
+          src="/images/logo/LavenderLizard_BG.png"
         />
         <h2
           className="
