@@ -9,7 +9,7 @@ export default withAuth({
 
 export const config = {
     matcher: [
-        "conversations/:path*"
+        "/conversations/:path*"
     ]
 };
 
