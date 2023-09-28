@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
 // Import the necessary dependencies
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from "react";
 
 // Define theme object
 interface Theme {
@@ -21,17 +21,17 @@ interface Theme {
 
 // Define a default theme
 const defaultTheme: Theme = {
-    lightLavenderLizardColor: "#d4c9e3",
-    defaultLavenderLizardColor: "#503a8f",
-    darkLavenderLizardColor: "#2f2465",
+  lightLavenderLizardColor: "#d4c9e3",
+  defaultLavenderLizardColor: "#503a8f",
+  darkLavenderLizardColor: "#2f2465",
 
-    lightCrimsonCrawlerColor: '#e697b0',
-    defaultCrimsonCrawlerColor: '#9d143b',
-    darkCrimsonCrawlerColor: '#5d0828',
-  
-    lightSunnySerpentColor: '#ffedb4',
-    defaultSunnySerpentColor: '#fed23f',
-    darkSunnySerpentColor: '#e18923'
+  lightCrimsonCrawlerColor: "#e697b0",
+  defaultCrimsonCrawlerColor: "#9d143b",
+  darkCrimsonCrawlerColor: "#5d0828",
+
+  lightSunnySerpentColor: "#ffedb4",
+  defaultSunnySerpentColor: "#fed23f",
+  darkSunnySerpentColor: "#e18923",
 };
 
 // Create a context for the theme
@@ -47,12 +47,10 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export function ThemeProvider({ 
-    children 
-}: ThemeProviderProps) {
-    return (
-      <ThemeContext.Provider value={defaultTheme}>
-        {children}
-      </ThemeContext.Provider>
-    );
+export function ThemeProvider({ children }: ThemeProviderProps) {
+  return (
+    <ThemeContext.Provider value={defaultTheme}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }

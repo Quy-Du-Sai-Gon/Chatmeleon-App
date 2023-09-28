@@ -3,20 +3,20 @@ import { IconType } from "react-icons";
 
 // Define the props interface for the AuthSocialButton component
 interface AuthSocialButtonProps {
-    icon: IconType; // Icon component from the react-icons library
-    onClick: () => void; // Click event handler
+  icon: IconType; // Icon component from the react-icons library
+  onClick: () => void; // Click event handler
 }
 
 // Define the AuthSocialButton component
-const AuthSocialButton: React.FC<AuthSocialButtonProps> =  ({
-    icon: Icon, // Destructure the icon prop as Icon
-    onClick
+const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({
+  icon: Icon, // Destructure the icon prop as Icon
+  onClick,
 }) => {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className="
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="
                 inline-flex
                 w-full
                 justify-center
@@ -31,11 +31,11 @@ const AuthSocialButton: React.FC<AuthSocialButtonProps> =  ({
                 ring-gray-300
                 hover:bg-gray-50 focus:outline-offset-0
             "
-        >
-            <Icon /> {/* Render the provided Icon component */}
-        </button>
-    );
-}
+    >
+      <Icon /> {/* Render the provided Icon component */}
+    </button>
+  );
+};
 
 // Export the AuthSocialButton component for reuse
 export default AuthSocialButton;
