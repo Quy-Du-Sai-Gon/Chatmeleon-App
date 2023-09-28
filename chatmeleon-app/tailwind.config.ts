@@ -7,26 +7,26 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    colors: {
-      transparant: 'transparant',
-      white: '#ffffff',
-      black: '#000000',
-      'lavenderLizard': {
-        light: '#d4c9e3',
-        DEFAULT: '#503a8f',
-        dark: '#2f2465'
-      },
-      'crimsonCrawler': {
-        light: '#e697b0',
-        DEFAULT: '#9d143b',
-        dark: '#5d0828'
-      },
-      'sunnySerpent': {
-        light: '#ffedb4',
-        DEFAULT: '#fed23f',
-        dark: '#e18923'
+    extend: {
+      colors: {
+        'lavenderLizard': {
+          light: '#d4c9e3',
+          DEFAULT: '#503a8f',
+          dark: '#2f2465'
+        },
+        'crimsonCrawler': {
+          light: '#e697b0',
+          DEFAULT: '#9d143b',
+          dark: '#5d0828'
+        },
+        'sunnySerpent': {
+          light: '#ffedb4',
+          DEFAULT: '#fed23f',
+          dark: '#e18923'
+        }
       }
-    }
+    },
+  
   },
   plugins: [
     require("@tailwindcss/forms")({
