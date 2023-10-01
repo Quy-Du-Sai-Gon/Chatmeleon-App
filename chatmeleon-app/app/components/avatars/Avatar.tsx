@@ -2,7 +2,7 @@
 
 import { User } from "@prisma/client";
 import Image from "next/image";
-import StatusBubble from "../status bubbles/StatusBubble";
+import StatusBubble from "../status/StatusBubble";
 interface AvatarProps {
   user?: User;
 }
