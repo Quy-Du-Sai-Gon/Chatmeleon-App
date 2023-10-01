@@ -2,7 +2,7 @@
 
 import { User } from "@prisma/client";
 import Image from "next/image";
-
+import StatusBubble from "../status bubbles/StatusBubble";
 interface AvatarProps {
   user?: User;
 }
@@ -28,6 +28,7 @@ const Avatar: React.FC<AvatarProps> = ({ user }) => {
           fill
         />
       </div>
+      <StatusBubble color="green"></StatusBubble>
     </div>
   );
 };
