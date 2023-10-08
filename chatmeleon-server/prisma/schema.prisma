@@ -1,0 +1,58 @@
+// Define the Prisma client
+generator client {
+    provider = "prisma-client-js"
+}
+
+// Define the MongoDB data source
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+// Define the User model
+model User {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+
+    // Define relationships
+    conversationsIds String[]       @db.ObjectId
+    conversations    Conversation[] @relation(fields: [conversationsIds], references: [id])
+
+    seenMessageIds String[]  @db.ObjectId
+    seenMessages   Message[] @relation("Seen", fields: [seenMessageIds], references: [id])
+
+    messages Message[]
+}
+
+// Define the Conversation model
+model Conversation {
+    id            String   @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt     DateTime @default(now())
+    lastMessageAt DateTime @default(now())
+    name          String?
+    isGroup       Boolean?
+
+    // Define relationships
+    messagesIds String[]  @db.ObjectId
+    messages    Message[]
+
+    userIds String[] @db.ObjectId
+    users   User[]   @relation(fields: [userIds], references: [id])
+}
+
+// Define the Message model
+model Message {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    body      String?
+    image     String?
+    createdAt DateTime @default(now())
+
+    // Define relationships
+    seenIds String[] @db.ObjectId
+    seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
+
+    conversationId String       @db.ObjectId
+    conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+    senderId String @db.ObjectId
+    sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
