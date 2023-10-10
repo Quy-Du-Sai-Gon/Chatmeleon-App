@@ -5,12 +5,12 @@
     "esModuleInterop": true, //This is required since some of the dependencies are CommonJS packages.
     "moduleResolution": "NodeNext", // required,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true
   },
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"
   },
-  "include": ["src"]
+  "include": ["./"]
 }

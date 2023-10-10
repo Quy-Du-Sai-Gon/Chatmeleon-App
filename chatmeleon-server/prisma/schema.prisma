@@ -12,7 +12,7 @@ datasource db {
 // Define the User model
 model User {
     id String @id @default(auto()) @map("_id") @db.ObjectId
-
+    
     // Define relationships
     conversationsIds String[]       @db.ObjectId
     conversations    Conversation[] @relation(fields: [conversationsIds], references: [id])
