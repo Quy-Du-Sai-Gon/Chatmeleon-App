@@ -1,16 +1,22 @@
 // src/app.ts
 import express from "express";
 import { Request, Response } from "express";
-import dotenv from "dotenv";
+import prisma from "../libs/prismadb.js"
+import { defaultRoute } from '../routes/test-route.js';
 
-dotenv.config(); // This will read the .env file and set the environment variables
 
 const app = express();
 const port = process.env.PORT;
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, World! This is your TypeScript Express server.");
-});
+  res.send("Backend server is running.");
+});   
+
+// Testing code
+export const routes = express.Router();
+routes.use(defaultRoute);
+app.use('/', routes);
+// End testing code
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

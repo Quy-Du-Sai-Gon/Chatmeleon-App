@@ -12,6 +12,15 @@ datasource db {
 // Define the User model
 model User {
     id String @id @default(auto()) @map("_id") @db.ObjectId
+    name           String?
+    email          String?   @unique // User's email (must be unique)
+    emailVerified  DateTime?
+    image          String?
+    hashedPassword String?
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+
+    accounts Account[]
 
     // Define relationships
     conversationsIds String[]       @db.ObjectId
@@ -21,6 +30,28 @@ model User {
     seenMessages   Message[] @relation("Seen", fields: [seenMessageIds], references: [id])
 
     messages Message[]
+}
+
+// Define the Account model
+model Account {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+
+    userId String @db.ObjectId
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    type              String // Type of account
+    provider          String // Authentication provider
+    providerAccountId String // Identifier from the authentication provider
+    refresh_token     String? @db.String
+    access_token      String? @db.String
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.String
+    session_state     String?
+
+    // Ensure unique combinations of provider and providerAccountId
+    @@unique([provider, providerAccountId])
 }
 
 // Define the Conversation model
