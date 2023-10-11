@@ -3,4 +3,4 @@ import { Router } from 'express';
 
 export const userRoute = Router();
 userRoute.get('/users/:id', userControler.getUserById);
-userRoute.get('/users', userControler.getAllUser);
+userRoute.get('/users', userControler.getAllUsers);

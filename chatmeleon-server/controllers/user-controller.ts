@@ -2,7 +2,7 @@ import prisma from "../libs/prismadb.js"
 import { Request, Response } from "express";
 
 // Define your async route handler function
-const getAllUser = async (req: Request, res: Response) => {
+const getAllUsers = async (req: Request, res: Response) => {
   try {
     const ALL_USERS = await prisma.user.findMany();
     res.send(JSON.stringify(ALL_USERS));
@@ -31,4 +31,4 @@ const getUserById = async (req: Request, res: Response) => {
     }
   };
 
-export default {getAllUser, getUserById};
+export default {getAllUsers, getUserById};
