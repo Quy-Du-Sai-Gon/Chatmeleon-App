@@ -17,12 +17,12 @@ const getAllUsers = async (req: Request, res: Response) => {
 const getUserById = async (req: Request, res: Response) => {
     try {
       const USER_ID = req.params.id;
-      const USER = await prisma.user.findUnique({
+      const USER_BY_ID = await prisma.user.findUnique({
         where: {
           id: USER_ID,
         },
       });
-      res.send(JSON.stringify(USER));
+      res.send(JSON.stringify(USER_BY_ID));
     } catch (error) {
       console.error(error);
       res.send("Error, check console log");
