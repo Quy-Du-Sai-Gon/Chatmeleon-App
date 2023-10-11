@@ -1,4 +1,5 @@
 import prisma from "../libs/prismadb.js"
+import { Request, Response } from "express";
 
 async function testConnectWithDatabase() {
     try {
@@ -12,4 +13,15 @@ async function testConnectWithDatabase() {
     }
   }
 
-export default testConnectWithDatabase;
+// Define your async route handler function
+const testRouteHandler = async (req: Request, res: Response) => {
+  try {
+    const TEST = await testConnectWithDatabase();
+    res.send(JSON.stringify(TEST));
+  } catch (error) {
+    console.error(error);
+    res.send("VCL");
+  }
+};
+
+export default testRouteHandler;
