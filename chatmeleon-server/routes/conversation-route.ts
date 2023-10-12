@@ -4,3 +4,4 @@ import { Router } from 'express';
 export const conversationRoute = Router();
 conversationRoute.get('/conversations/:id', conversationControler.getConversationById);
 conversationRoute.get('/conversations', conversationControler.getAllConversations);
+conversationRoute.post('/conversations', conversationControler.postConversation);
