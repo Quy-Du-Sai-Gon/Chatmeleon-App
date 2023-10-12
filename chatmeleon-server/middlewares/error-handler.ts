@@ -21,7 +21,6 @@ const errorMiddleware = (
                 break;
             case 'P2023':
                 res.status(400).json({ error: `${err.meta.message}` });
-                console.log(err);
                 break;
             default:
                 res.status(500).json({ error: `Something went wrong: ${err.message}`});
