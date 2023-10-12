@@ -1,9 +1,9 @@
 import prisma from "../libs/prismadb.js"
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 
 // Define your async route handler function
 
-const getAllUsers = async (req: Request, res: Response) => {
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Fetch all users from the Prisma database.
     const allUsers = await prisma.user.findMany();
@@ -12,8 +12,7 @@ const getAllUsers = async (req: Request, res: Response) => {
     res.send(JSON.stringify(allUsers));
   } catch (error) {
     // If there's an error, log it to the console and send an error response.
-    console.error(error);
-    res.send("Error, check console log");
+    next(error);
   } finally {
     // Disconnect from the Prisma database.
     await prisma.$disconnect();
@@ -21,7 +20,7 @@ const getAllUsers = async (req: Request, res: Response) => {
 };
 
 
-const getUserById = async (req: Request, res: Response) => {
+const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Extract the user ID from the request parameters.
     const userId = req.params.id;
@@ -37,8 +36,7 @@ const getUserById = async (req: Request, res: Response) => {
     res.send(JSON.stringify(userById));
   } catch (error) {
     // If there's an error, log it to the console and send an error response.
-    console.error(error);
-    res.send("Error, check console log");
+    next(error);
   } finally {
     // Disconnect from the Prisma database to release resources.
     await prisma.$disconnect();

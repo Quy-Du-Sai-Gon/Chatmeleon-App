@@ -15,6 +15,8 @@ app.get("/", (req: Request, res: Response) => {
 // Testing code
 export const routes = express.Router();
 routes.use(defaultRoute);
+routes.use(userRoute);
+routes.use(errorMiddleware);
 app.use('/', routes);
 // End testing code
 
