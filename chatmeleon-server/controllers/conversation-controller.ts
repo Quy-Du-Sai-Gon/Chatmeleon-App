@@ -38,6 +38,16 @@ const getConversationById = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+/* Request body example
+{
+    "lastMessageAt": "2023-10-11T03:23:06.107+00:00",
+    "name": "Test",
+    "isGroup": false,
+    "messagesIds": ["6526151a22f25fa43da0f0f3"],
+    "userIds": ["6524d06b9726a23da4002695"]
+}
+*/
+
 const postConversation = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
@@ -82,7 +92,67 @@ const postConversation = async (req: Request, res: Response, next: NextFunction)
     res.json(newConversation);
   } catch (error) {
     next(error);
+  } finally {
+    // Disconnect from the Prisma database to release resources.
+    await prisma.$disconnect();
+  }
+};
+
+const updateConversation = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const conversationId = req.params.id;
+    const updatedConversationData = req.body;
+
+    const updatedConversation = await prisma.conversation.update({
+      where: {
+        id: conversationId,
+      },
+      data: updatedConversationData,
+    });
+
+    res.json(updatedConversation);
+  }
+  catch (error) {
+    next(error);
+  }
+  finally {
+    // Disconnect from the Prisma database to release resources.
+    await prisma.$disconnect();
   }
 }
 
-export default { getAllConversations, getConversationById, postConversation };
+const updateConversationFields = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const conversationId = req.params.id;
+    const updatedFields = req.body;
+
+    const updatedConversation = await prisma.conversation.update({
+      where: {
+        id: conversationId,
+      },
+      data: updatedFields,
+    });
+
+    res.json(updatedConversation);
+  } catch (error) {
+    next(error);
+  }
+}
+
+const deleteConversation = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const conversationId = req.params.id;
+
+    await prisma.conversation.delete({
+      where: {
+        id: conversationId,
+      }
+    })
+
+    res.json({ message: `${conversationId} deleted.` });
+  } catch (error) {
+
+  }
+}
+
+export default { getAllConversations, getConversationById, postConversation, updateConversation, updateConversationFields, deleteConversation };
