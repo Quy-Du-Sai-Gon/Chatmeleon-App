@@ -41,32 +41,45 @@ const getConversationById = async (req: Request, res: Response, next: NextFuncti
 const postConversation = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
-      // lastMessageAt,
+      lastMessageAt,
       name,
       isGroup,
       messagesIds,
-      // messages,
       userIds,
-      // users,
     } = req.body;
 
-    // const createdAt = new Date().toISOString().slice(0, 10);
-    const createdAt = "2023-10-11T03:23:06.107+00:00";
+    const createdAt = new Date().toISOString();
 
-    await prisma.conversation.create({
+    const messages = await prisma.message.findMany({
+      where: {
+        id: { in: messagesIds },
+      },
+    })
+
+    const users = await prisma.user.findMany({
+      where: {
+        id: { in: userIds },
+      },
+    })
+
+    const newConversation = await prisma.conversation.create({
       data: {
         createdAt,
-        // lastMessageAt,
+        lastMessageAt,
         name,
         isGroup,
         messagesIds,
-        // messages,
+        messages: {
+          connect: messages.map((message) => ({ id: message.id })),
+        },
         userIds,
-        // users,
+        users: {
+          connect: users.map((user) => ({ id: user.id })),
+        },
       }
     })
 
-    res.send("Created!")
+    res.json(newConversation);
   } catch (error) {
     next(error);
   }
