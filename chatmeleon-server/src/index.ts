@@ -12,6 +12,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Backend server is running.");
 });   
 
+app.use(express.json());
+
 // Testing code
 export const routes = express.Router();
 routes.use(defaultRoute);
