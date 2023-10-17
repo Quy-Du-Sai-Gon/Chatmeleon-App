@@ -11,7 +11,7 @@ datasource db {
 
 // Define the User model
 model User {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
+    id             String    @id @default(auto()) @map("_id") @db.ObjectId
     name           String?
     email          String?   @unique // User's email (must be unique)
     emailVerified  DateTime?
