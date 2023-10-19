@@ -18,7 +18,6 @@ routes.use(conversationRoute);
 routes.use(userRoute);
 routes.use(errorMiddleware);
 app.use('/', routes);
-// End testing code
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
