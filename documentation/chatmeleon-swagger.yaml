@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Chatmeleon
+  description: |-
+
+    Welcome to our Swagger documentation with API. This is a Chatmeleon Server based on the OpenAPI 3.0 specification. 
+    
+    Useful link:
+    - [Chatmeleon repository](https://github.com/Quy-Du-Sai-Gon/Chatmeleon-App)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://petstore3.swagger.io/api/v3
+tags:
+  - name: user
+    description: API related to user
+  - name: account
+  - name: conversation
+  - name: message
+paths:
+  /user/login: 
+    post:
+      tags:
+        - user
+      summary: Login
+      description: Login to the system
+      operationId: login
+      requestBody:
+        description: Login Information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: 
+        required: true
+      responses:
+        "200":
+          description: Login Successfully              
+            
+        "404":
+          description: Invalid input
+        
+  
