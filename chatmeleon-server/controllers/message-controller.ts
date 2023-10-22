@@ -7,7 +7,7 @@ const getAllMessages = async (req: Request, res: Response, next: NextFunction) =
   try {
     // Fetch all users from the Prisma database.
     const allMessages = await prisma.message.findMany();
-    
+
     // Send the list of users as a JSON response.
     res.send(JSON.stringify(allMessages));
   } catch (error) {
@@ -38,15 +38,15 @@ const getMessageById = async (req: Request, res: Response, next: NextFunction) =
 const createMessage = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
-      body, 
+      body,
       image,
-      conversationId, 
+      conversationId,
       senderId,
     } = req.body;
-  
+
     const newMessage = await prisma.message.create({
       data: {
-        body, 
+        body,
         image,
         conversation: {
           connect: {
@@ -79,7 +79,7 @@ const deleteMessage = async (req: Request, res: Response, next: NextFunction) =>
         id: messageId,
       }
     })
-    res.json({message: `${messageId} deleted.`})
+    res.json({ message: `${messageId} deleted.` })
   } catch (error) {
     // If there's an error, log it to the console and send an error response.
     next(error);
@@ -94,7 +94,7 @@ const updateMessage = async (req: Request, res: Response, next: NextFunction) =>
     const messageId = req.params.id;
     const updatedMessageData = req.body;
 
-    const updatedMessage = await prisma.conversation.update({
+    const updatedMessage = await prisma.message.update({
       where: {
         id: messageId,
       },
@@ -117,7 +117,7 @@ const updateMessageFields = async (req: Request, res: Response, next: NextFuncti
     const messageId = req.params.id;
     const updatedFields = req.body;
 
-    const updatedMessage = await prisma.conversation.update({
+    const updatedMessage = await prisma.message.update({
       where: {
         id: messageId,
       },
@@ -134,4 +134,4 @@ const updateMessageFields = async (req: Request, res: Response, next: NextFuncti
   }
 }
 
-export default {getAllMessages, getMessageById, createMessage, deleteMessage, updateMessage, updateMessageFields};
+export default { getAllMessages, getMessageById, createMessage, deleteMessage, updateMessage, updateMessageFields };
