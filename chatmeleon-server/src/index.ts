@@ -1,6 +1,8 @@
 import express from "express";
 import { Request, Response } from "express";
+
 import errorMiddleware from '../middlewares/error-handler.js';
+import { messageRoute } from '../routes/message-route.js';
 import { conversationRoute } from '../routes/conversation-route.js';
 import { userRoute } from '../routes/user-route.js';
 
@@ -14,8 +16,11 @@ app.get("/", (req: Request, res: Response) => {
 app.use(express.json());
 
 export const routes = express.Router();
+
+routes.use(messageRoute);
 routes.use(conversationRoute);
 routes.use(userRoute);
+
 routes.use(errorMiddleware);
 app.use('/', routes);
 
