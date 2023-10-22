@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: Chatmeleon
+  description: |-
+
+    Welcome to our Swagger documentation with API. This is a Chatmeleon Server based on the OpenAPI 3.0 specification. 
+
+    Useful link:
+    - [Chatmeleon repository](https://github.com/Quy-Du-Sai-Gon/Chatmeleon-App)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: user
+  - name: account
+  - name: conversation
+  - name: message
+paths:
+components:
+  schemas:
+    # User outline (changeable)
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: jackiechan
+        email:
+          type: string
+          example: gangganggang@gmail.com
+        emailVerified:
+          type: string
+          #change this type
+          example: 23/12/2023
+        image:
+          type: string
+        hashedPassword:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        conversationIds:
+          type: integer
+          example: 1, 2, 3
+      xml:
+        name: user
+    # Account outline (changeable)
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100000
+        username:
+          type: string
+          example: fehguy
+      xml:
+        name: customer
+    # Message outline (changeable)
+    Message:
+      type: object
+      properties:
+        street:
+          type: string
+          example: 437 Lytton
+        city:
+          type: string
+          example: Palo Alto
+        state:
+          type: string
+          example: CA
+        zip:
+          type: string
+          example: "94301"
+      xml:
+        name: address
+    # Conversation outline (changeable)
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: theUser
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          example: "12345"
+        phone:
+          type: string
+          example: "12345"
+        userStatus:
+          type: integer
+          description: User Status
+          format: int32
+          example: 1
+      xml:
+        name: user
