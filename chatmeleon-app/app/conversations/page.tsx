@@ -2,7 +2,7 @@ import EmptyState from "../components/EmptyState";
 
 const Conversations = () => {
   return (
-    <div className="hidden lg:block lg:pl-80  h-full">
+    <div className="w-full h-full bg-lavenderLizard">
       <EmptyState />
     </div>
   );
