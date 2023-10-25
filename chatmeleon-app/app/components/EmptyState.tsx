@@ -1,4 +1,9 @@
-const EmptyState = ({ className }) => {
+import React from "react";
+interface EmptyStateProps {
+  className?: string; // Define the type for className
+}
+
+const EmptyState: React.FC<EmptyStateProps> = ({ className }) => {
   return (
     <div
       className={` 
