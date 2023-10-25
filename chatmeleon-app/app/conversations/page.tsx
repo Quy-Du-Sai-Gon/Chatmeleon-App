@@ -1,12 +1,13 @@
 import Image from "next/image";
 import logo from "../../public/images/logo/LavenderLizard_no_BG.png"
+import EmptyState from "../components/EmptyState";
 
 export default function Home() {
   return (
     <div className="w-full h-full bg-lavenderLizard-dark flex">
-      <div className="w-24 h-full bg-lavenderLizard-dark" >
-        {/* Navigation bar = GRID syntax = 3 icons */}
-        <Image
+      {/* <div className="w-24 h-full bg-lavenderLizard-dark" > */}
+      {/* Navigation bar = GRID syntax = 3 icons */}
+      {/* <Image
           src={logo}
           alt="Picture of the logo"
           width={70}
@@ -32,16 +33,21 @@ export default function Home() {
               <path stroke-linecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
             </svg>
           </button>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
       <div className="w-full h-95% flex m-5 rounded-3xl bg-lavenderLizard-light">
         <div className="w-1/5 h-85% m-5 rounded-3xl bg-white">
+          <h1 className="text-sm lg:text-lg pt-3 pl-4 font-semibold">Chat</h1>
+          <div className="hidden lg:flex lg:w-85% lg:h-7 m-2 p-1.5 bg-gray-300 text-black rounded-xl">
+            <input type="text" placeholder="Find your friends" className="w-full h-full text-xs lg:text-sm bg-gray-300 focus:outline-none ring-0" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-auto">
+              < path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </div>
           {/* Choose which user to chat using GRID syntax to split users into slots */}
         </div>
-        <div className="w-full h-full bg-transparent px-4 py-10 sm:px-6 lg:px-8 flex justify-center items-center">
-          <p>Select a chat or start a new conversation</p>
-        </div>
+        <EmptyState className="w-full bg-transparent" />
       </div>
-    </div>
+    </div >
   )
 }
