@@ -1,3 +1,5 @@
+// This script is used to create new record on Mongodb for testing purpose
+
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();

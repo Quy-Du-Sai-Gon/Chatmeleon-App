@@ -1,21 +1,13 @@
-import prisma from "../libs/prismadb.js"
+import prisma from "../libs/prismadb"
 import { Request, Response, NextFunction } from "express";
-
-// Define your async route handler function
 
 const getAllMessages = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Fetch all users from the Prisma database.
     const allMessages = await prisma.message.findMany();
 
-    // Send the list of users as a JSON response.
-    res.send(JSON.stringify(allMessages));
+    res.json(allMessages);
   } catch (error) {
-    // If there's an error, log it to the console and send an error response.
     next(error);
-  } finally {
-    // Disconnect from the Prisma database.
-    await prisma.$disconnect();
   }
 };
 
@@ -27,11 +19,9 @@ const getMessageById = async (req: Request, res: Response, next: NextFunction) =
         id: messageId
       }
     })
-    res.send(JSON.stringify(messageById));
+    res.json(messageById);
   } catch (error) {
     next(error);
-  } finally {
-    await prisma.$disconnect();
   }
 };
 
@@ -65,9 +55,6 @@ const createMessage = async (req: Request, res: Response, next: NextFunction) =>
   } catch (error) {
     // If there's an error, log it to the console and send an error response.
     next(error);
-  } finally {
-    // Disconnect from the Prisma database.
-    await prisma.$disconnect();
   }
 };
 
@@ -83,9 +70,6 @@ const deleteMessage = async (req: Request, res: Response, next: NextFunction) =>
   } catch (error) {
     // If there's an error, log it to the console and send an error response.
     next(error);
-  } finally {
-    // Disconnect from the Prisma database.
-    await prisma.$disconnect();
   }
 };
 
@@ -106,10 +90,6 @@ const updateMessage = async (req: Request, res: Response, next: NextFunction) =>
   catch (error) {
     next(error);
   }
-  finally {
-    // Disconnect from the Prisma database to release resources.
-    await prisma.$disconnect();
-  }
 };
 
 const updateMessageFields = async (req: Request, res: Response, next: NextFunction) => {
@@ -127,10 +107,6 @@ const updateMessageFields = async (req: Request, res: Response, next: NextFuncti
     res.json(updatedMessage);
   } catch (error) {
     next(error);
-  }
-  finally {
-    // Disconnect from the Prisma database to release resources.
-    await prisma.$disconnect();
   }
 }
 

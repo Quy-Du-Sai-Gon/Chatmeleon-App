@@ -1,20 +1,26 @@
-import prisma from "../libs/prismadb.js"
+import prisma from "../libs/prismadb"
 import { Request, Response, NextFunction } from "express";
 
-const getAllConversations = async (req: Request, res: Response, next: NextFunction) => {
+const getAllConversationsByUserId = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Fetch all conversations from the Prisma database.
-    const allConversations = await prisma.conversation.findMany();
+    const userId = req.params.userId;
+    const userConversations = await prisma.conversation.findMany({
+      where: {
+        users: {
+          some: {
+            id: userId
+          }
+        }
+      }
+    });
 
     // Send the list of conversations as a JSON response.
-    res.send(JSON.stringify(allConversations));
+    res.json(userConversations);
   } catch (error) {
     next(error);
-  } finally {
-    // Disconnect from the Prisma database.
-    await prisma.$disconnect();
   }
 };
+
 
 const getConversationById = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -29,24 +35,11 @@ const getConversationById = async (req: Request, res: Response, next: NextFuncti
     });
 
     // Send the conversation data as a JSON response.
-    res.send(JSON.stringify(conversationById));
+    res.json(conversationById);
   } catch (error) {
     next(error);
-  } finally {
-    // Disconnect from the Prisma database to release resources.
-    await prisma.$disconnect();
   }
 };
-
-/* Request body example
-{
-    "lastMessageAt": "2023-10-11T03:23:06.107+00:00",
-    "name": "Test",
-    "isGroup": false,
-    "messagesIds": ["6526151a22f25fa43da0f0f3"],
-    "userIds": ["6524d06b9726a23da4002695"]
-}
-*/
 
 const postConversation = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -92,9 +85,6 @@ const postConversation = async (req: Request, res: Response, next: NextFunction)
     res.json(newConversation);
   } catch (error) {
     next(error);
-  } finally {
-    // Disconnect from the Prisma database to release resources.
-    await prisma.$disconnect();
   }
 };
 
@@ -114,10 +104,6 @@ const updateConversation = async (req: Request, res: Response, next: NextFunctio
   }
   catch (error) {
     next(error);
-  }
-  finally {
-    // Disconnect from the Prisma database to release resources.
-    await prisma.$disconnect();
   }
 }
 
@@ -139,20 +125,4 @@ const updateConversationFields = async (req: Request, res: Response, next: NextF
   }
 }
 
-const deleteConversation = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const conversationId = req.params.id;
-
-    await prisma.conversation.delete({
-      where: {
-        id: conversationId,
-      }
-    })
-
-    res.json({ message: `${conversationId} deleted.` });
-  } catch (error) {
-
-  }
-}
-
-export default { getAllConversations, getConversationById, postConversation, updateConversation, updateConversationFields, deleteConversation };
+export default { getAllConversationsByUserId, getConversationById, postConversation, updateConversation, updateConversationFields };

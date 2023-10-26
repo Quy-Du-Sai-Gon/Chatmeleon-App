@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "NodeNext",
+    "module": "commonjs",
     "esModuleInterop": true, //This is required since some of the dependencies are CommonJS packages.
-    "moduleResolution": "NodeNext", // required,
+    "moduleResolution": "node", // required,
     "outDir": "./dist",
     "rootDir": "./",
     "strict": true
   },
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
-  },
-  "include": ["./"]
+  "include": [
+    "./"
+  ]
 }

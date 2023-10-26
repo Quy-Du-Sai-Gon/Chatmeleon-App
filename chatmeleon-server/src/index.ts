@@ -1,10 +1,10 @@
 import express from "express";
 import { Request, Response } from "express";
 
-import errorMiddleware from '../middlewares/error-handler.js';
-import { messageRoute } from '../routes/message-route.js';
-import { conversationRoute } from '../routes/conversation-route.js';
-import { userRoute } from '../routes/user-route.js';
+import errorMiddleware from '../middlewares/error-handler';
+import { messageRoute } from '../routes/message-route';
+import { conversationRoute } from '../routes/conversation-route';
+import { userRoute } from '../routes/user-route';
 
 const app = express();
 const port = process.env.PORT;
