@@ -93,54 +93,8 @@ const postConversation = async (
   }
 };
 
-const updateConversation = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const conversationId = req.params.id;
-    const updatedConversationData = req.body;
-
-    const updatedConversation = await prisma.conversation.update({
-      where: {
-        id: conversationId,
-      },
-      data: updatedConversationData,
-    });
-
-    res.json(updatedConversation);
-  } catch (error) {
-    next(error);
-  }
-};
-
-const updateConversationFields = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const conversationId = req.params.id;
-    const updatedFields = req.body;
-
-    const updatedConversation = await prisma.conversation.update({
-      where: {
-        id: conversationId,
-      },
-      data: updatedFields,
-    });
-
-    res.json(updatedConversation);
-  } catch (error) {
-    next(error);
-  }
-};
-
 export default {
   getAllConversationsByUserId,
   getConversationById,
   postConversation,
-  updateConversation,
-  updateConversationFields,
 };
