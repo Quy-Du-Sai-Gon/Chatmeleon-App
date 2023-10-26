@@ -1,6 +1,6 @@
-import userController from "../controllers/user-controller"
-import { Router } from 'express';
+import userController from "../controllers/user-controller";
+import { Router } from "express";
 
 export const userRoute = Router();
-userRoute.get('/users/:id', userController.getUserById);
-userRoute.get('/users', userController.getAllUsers);
+
+userRoute.get("/users/:id", userController.getUserById);

@@ -1,17 +1,21 @@
-import prisma from "../libs/prismadb"
+import prisma from "../libs/prismadb";
 import { Request, Response, NextFunction } from "express";
 
-const getAllConversationsByUserId = async (req: Request, res: Response, next: NextFunction) => {
+const getAllConversationsByUserId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.params.userId;
     const userConversations = await prisma.conversation.findMany({
       where: {
         users: {
           some: {
-            id: userId
-          }
-        }
-      }
+            id: userId,
+          },
+        },
+      },
     });
 
     // Send the list of conversations as a JSON response.
@@ -21,8 +25,11 @@ const getAllConversationsByUserId = async (req: Request, res: Response, next: Ne
   }
 };
 
-
-const getConversationById = async (req: Request, res: Response, next: NextFunction) => {
+const getConversationById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Extract the conversation ID from the request parameters.
     const conversationId = req.params.id;
@@ -30,8 +37,8 @@ const getConversationById = async (req: Request, res: Response, next: NextFuncti
     // Query the Prisma database to find a conversation by its ID.
     const conversationById = await prisma.conversation.findUnique({
       where: {
-        id: conversationId
-      }
+        id: conversationId,
+      },
     });
 
     // Send the conversation data as a JSON response.
@@ -41,15 +48,13 @@ const getConversationById = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-const postConversation = async (req: Request, res: Response, next: NextFunction) => {
+const postConversation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const {
-      lastMessageAt,
-      name,
-      isGroup,
-      messagesIds,
-      userIds,
-    } = req.body;
+    const { lastMessageAt, name, isGroup, messagesIds, userIds } = req.body;
 
     const createdAt = new Date().toISOString();
 
@@ -57,13 +62,13 @@ const postConversation = async (req: Request, res: Response, next: NextFunction)
       where: {
         id: { in: messagesIds },
       },
-    })
+    });
 
     const users = await prisma.user.findMany({
       where: {
         id: { in: userIds },
       },
-    })
+    });
 
     const newConversation = await prisma.conversation.create({
       data: {
@@ -79,8 +84,8 @@ const postConversation = async (req: Request, res: Response, next: NextFunction)
         users: {
           connect: users.map((user) => ({ id: user.id })),
         },
-      }
-    })
+      },
+    });
 
     res.json(newConversation);
   } catch (error) {
@@ -88,7 +93,11 @@ const postConversation = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-const updateConversation = async (req: Request, res: Response, next: NextFunction) => {
+const updateConversation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const conversationId = req.params.id;
     const updatedConversationData = req.body;
@@ -101,13 +110,16 @@ const updateConversation = async (req: Request, res: Response, next: NextFunctio
     });
 
     res.json(updatedConversation);
-  }
-  catch (error) {
+  } catch (error) {
     next(error);
   }
-}
+};
 
-const updateConversationFields = async (req: Request, res: Response, next: NextFunction) => {
+const updateConversationFields = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const conversationId = req.params.id;
     const updatedFields = req.body;
@@ -123,6 +135,12 @@ const updateConversationFields = async (req: Request, res: Response, next: NextF
   } catch (error) {
     next(error);
   }
-}
+};
 
-export default { getAllConversationsByUserId, getConversationById, postConversation, updateConversation, updateConversationFields };
+export default {
+  getAllConversationsByUserId,
+  getConversationById,
+  postConversation,
+  updateConversation,
+  updateConversationFields,
+};
