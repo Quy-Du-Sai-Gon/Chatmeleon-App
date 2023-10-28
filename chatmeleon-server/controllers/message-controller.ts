@@ -6,13 +6,9 @@ const getAllMessages = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const allMessages = await prisma.message.findMany();
+  const allMessages = await prisma.message.findMany();
 
-    res.json(allMessages);
-  } catch (error) {
-    next(error);
-  }
+  res.json(allMessages);
 };
 
 const createMessage = async (
@@ -20,31 +16,26 @@ const createMessage = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const { body, image, conversationId, senderId } = req.body;
+  const { body, image, conversationId, senderId } = req.body;
 
-    const newMessage = await prisma.message.create({
-      data: {
-        body,
-        image,
-        conversation: {
-          connect: {
-            id: conversationId,
-          },
-        },
-        sender: {
-          connect: {
-            id: senderId,
-          },
+  const newMessage = await prisma.message.create({
+    data: {
+      body,
+      image,
+      conversation: {
+        connect: {
+          id: conversationId,
         },
       },
-    });
+      sender: {
+        connect: {
+          id: senderId,
+        },
+      },
+    },
+  });
 
-    res.sendStatus(200);
-  } catch (error) {
-    // If there's an error, log it to the console and send an error response.
-    next(error);
-  }
+  res.sendStatus(200);
 };
 
 const updateMessage = async (
@@ -52,21 +43,17 @@ const updateMessage = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const messageId = req.params.id;
-    const updatedMessageData = req.body;
+  const messageId = req.params.id;
+  const updatedMessageData = req.body;
 
-    const updatedMessage = await prisma.message.update({
-      where: {
-        id: messageId,
-      },
-      data: updatedMessageData,
-    });
+  const updatedMessage = await prisma.message.update({
+    where: {
+      id: messageId,
+    },
+    data: updatedMessageData,
+  });
 
-    res.json(updatedMessage);
-  } catch (error) {
-    next(error);
-  }
+  res.json(updatedMessage);
 };
 
 const updateMessageFields = async (
@@ -74,21 +61,17 @@ const updateMessageFields = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const messageId = req.params.id;
-    const updatedFields = req.body;
+  const messageId = req.params.id;
+  const updatedFields = req.body;
 
-    const updatedMessage = await prisma.message.update({
-      where: {
-        id: messageId,
-      },
-      data: updatedFields,
-    });
+  const updatedMessage = await prisma.message.update({
+    where: {
+      id: messageId,
+    },
+    data: updatedFields,
+  });
 
-    res.json(updatedMessage);
-  } catch (error) {
-    next(error);
-  }
+  res.json(updatedMessage);
 };
 
 export default {
