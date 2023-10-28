@@ -3,10 +3,9 @@ import { Router } from "express";
 
 export const messageRoute = Router();
 
-messageRoute.get("/messages", messageController.getAllMessages);
+messageRoute.get(
+  "/conversations/:conversationId/messages",
+  messageController.getAllMessages
+);
 
 messageRoute.post("/messages", messageController.createMessage);
-
-messageRoute.put("/messages/:id", messageController.updateMessage);
-
-messageRoute.patch("/messages/:id", messageController.updateMessageFields);
