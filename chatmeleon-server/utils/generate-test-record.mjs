@@ -61,3 +61,5 @@ const createMessage = async () => {
     await prisma.$disconnect();
   }
 };
+
+createMessage();

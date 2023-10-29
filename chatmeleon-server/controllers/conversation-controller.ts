@@ -27,7 +27,7 @@ const getConversationsByUserIdWithPagination = async (
           id: userId,
         },
       },
-      createdAt: {
+      id: {
         gt: cursor,
       },
     },
@@ -39,7 +39,7 @@ const getConversationsByUserIdWithPagination = async (
 
   // Extract the last conversation's cursor for pagination.
   const lastConversation = conversations[conversations.length - 1];
-  const nextCursor = lastConversation ? lastConversation.createdAt : null;
+  const nextCursor = lastConversation ? lastConversation.id : null;
 
   res.json({
     conversations,
