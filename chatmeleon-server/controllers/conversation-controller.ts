@@ -1,50 +1,53 @@
 import prisma from "../libs/prismadb";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
-const getAllConversationsByUserId = async (
+const getConversationById = async (req: Request, res: Response) => {
+  const id = req.params.conversationId;
+  const userConversations = await prisma.conversation.findUnique({
+    where: {
+      id: id,
+    },
+  });
+
+  res.json(userConversations);
+};
+
+const getConversationsByUserIdWithPagination = async (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
-  const userId = req.params.userId;
-  const userConversations = await prisma.conversation.findMany({
+  const userId = req.query.userId as string;
+  const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
+  const cursor = req.query.cursor as string | undefined;
+
+  const conversations = await prisma.conversation.findMany({
     where: {
       users: {
         some: {
           id: userId,
         },
       },
+      createdAt: {
+        gt: cursor,
+      },
     },
+    orderBy: {
+      createdAt: "asc",
+    },
+    take: pageSize,
   });
 
-  // Send the list of conversations as a JSON response.
-  res.json(userConversations);
-};
+  // Extract the last conversation's cursor for pagination.
+  const lastConversation = conversations[conversations.length - 1];
+  const nextCursor = lastConversation ? lastConversation.createdAt : null;
 
-const getConversationById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // Extract the conversation ID from the request parameters.
-  const conversationId = req.params.id;
-
-  // Query the Prisma database to find a conversation by its ID.
-  const conversationById = await prisma.conversation.findUnique({
-    where: {
-      id: conversationId,
-    },
+  res.json({
+    conversations,
+    nextCursor,
   });
-
-  // Send the conversation data as a JSON response.
-  res.json(conversationById);
 };
 
-const postConversation = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const postConversation = async (req: Request, res: Response) => {
   const { lastMessageAt, name, isGroup, messagesIds, userIds } = req.body;
 
   const createdAt = new Date().toISOString();
@@ -82,7 +85,7 @@ const postConversation = async (
 };
 
 export default {
-  getAllConversationsByUserId,
   getConversationById,
+  getConversationsByUserIdWithPagination,
   postConversation,
 };

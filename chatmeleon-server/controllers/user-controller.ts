@@ -1,7 +1,7 @@
 import prisma from "../libs/prismadb";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
-const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+const getUserById = async (req: Request, res: Response) => {
   const userId = req.params.id;
 
   const userById = await prisma.user.findUnique({
