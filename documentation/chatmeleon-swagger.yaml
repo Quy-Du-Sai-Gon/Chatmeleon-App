@@ -18,107 +18,306 @@ externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:5000
 tags:
-  - name: user
-  - name: account
-  - name: conversation
-  - name: message
+  - name: conversations
+  - name: messages
+  - name: users
 paths:
+  /users/{userId}/conversations:
+    get:
+      description: Retrieve a page of conversations associated with a user, identified by their user ID with the support of cursor-based pagination.
+      tags:
+        - conversations
+      summary: Get user's conversations
+      parameters:
+        - name: userId
+          in: path
+          description: The unique user ID.
+          required: true
+          schema:
+            type: string
+          example: "3564f38ce881480099dd7cb1"
+        - name: pageSize
+          in: query
+          description: The number of conversations in one page.
+          schema:
+            type: integer
+            default: 10
+        - name: cursor
+          in: query
+          description: The ID of the earliest converation of the last messages page.
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
+            default: null
+      responses:
+        "200":
+          description: An array of conversations related to the user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allMessages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Conversation"
+                  nextCursor:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
+                    description: The ID of the earliest conversation of the current conversations page.
+
+        "404":
+          description: User not found or no conversations found for the specified user.
+  /conversations/{conversationId}:
+    get:
+      description: Retrieve a conversation by its ID.
+      tags:
+        - conversations
+      summary: Get a conversation
+      parameters:
+        - name: conversationId
+          in: path
+          description: The unique conversation ID.
+          required: true
+          schema:
+            type: string
+          example: "fdf919880bcde1e42cb3e588"
+      responses:
+        "200":
+          description: A conversation record.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+    post:
+      description: Create a conversation by its ID.
+      tags:
+        - conversations
+      parameters:
+        - name: conversationId
+          in: path
+          description: The unique conversation ID.
+          required: true
+          schema:
+            type: string
+          example: "fdf919880bcde1e42cb3e588"
+      responses:
+        "200":
+          description: Conversation updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+      requestBody:
+        description: Conversation data to update.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Conversation"
+  /conversations/{conversationId}/messages:
+    get:
+      description: Retrieve a page of messages of a conversation identified by the conversation's ID with the support of cursor-based pagination.
+      tags:
+        - messages
+      summary: Get all messages in a conversation
+      parameters:
+        - name: conversationId
+          in: path
+          description: The unique conversation ID.
+          required: true
+          schema:
+            type: string
+          example: "fdf919880bcde1e42cb3e588"
+        - name: pageSize
+          in: query
+          description: The number of conversations in one page.
+          schema:
+            type: integer
+            default: 10
+        - name: cursor
+          in: query
+          description: The ID of the earliest message of the previous messages page.
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
+            default: null
+      responses:
+        "200":
+          description: All messages's information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allMessages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                  nextCursor:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
+                    description: The ID of the earliest message of the current messages page.
+  /users/{userId}/messages:
+    get:
+      description: Retrieve a page of messages of a conversation identified by the user's ID with the support of cursor-based pagination.
+      tags:
+        - messages
+      summary: Get all messages of a user
+      parameters:
+        - name: userId
+          in: path
+          description: The unique user ID.
+          required: true
+          schema:
+            type: string
+          example: "fdf919880bcde1e42cb3e588"
+        - name: pageSize
+          in: query
+          description: The number of message in one page.
+          schema:
+            type: integer
+            default: 10
+        - name: cursor
+          in: query
+          description: The ID of the earliest message of the previous messages page.
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
+            default: null
+      responses:
+        "200":
+          description: All messages's information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allMessages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                  nextCursor:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
+                    description: The ID of the earliest message of the current messages page.
+  /users/{userId}:
+    get:
+      description: Retrieve information about a user identified by the user's ID.
+      tags:
+        - users
+      summary: Get a user
+      parameters:
+        - name: userId
+          in: path
+          description: The unique user ID.
+          required: true
+          schema:
+            type: string
+          example: "3564f38ce881480099dd7cb1"
+      responses:
+        "200":
+          description: User's information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
 components:
   schemas:
-    # User outline (changeable)
     User:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          example: 10
+          type: string
+          pattern: "^[0-9a-f]{24}$"
+          description: MongoDB _id of the user.
         name:
           type: string
-          example: jackiechan
+          description: The user's name, e.g., "Jackie Chan."
         email:
           type: string
-          example: gangganggang@gmail.com
+          format: email
+          description: The email address associated with the user's account. It should be a valid email address, e.g., "user@example.com."
         emailVerified:
           type: string
-          #change this type
-          example: 23/12/2023
+          format: date-time
+          description: The timestamp when the email address was verified.
         image:
           type: string
+          description: URL to the user's profile image.
         hashedPassword:
           type: string
+          description: Hashed password for user authentication.
         createdAt:
           type: string
+          format: date-time
+          description: The timestamp when the user account was created.
         updatedAt:
           type: string
-        conversationIds:
-          type: integer
-          example: 1, 2, 3
-      xml:
-        name: user
-    # Account outline (changeable)
-    Account:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 100000
-        username:
-          type: string
-          example: fehguy
-      xml:
-        name: customer
-    # Message outline (changeable)
+          format: date-time
+          description: The timestamp when the user account was last updated.
+
     Message:
       type: object
       properties:
-        street:
+        id:
           type: string
-          example: 437 Lytton
-        city:
+          pattern: "^[0-9a-f]{24}$"
+          description: MongoDB _id of the message.
+        body:
           type: string
-          example: Palo Alto
-        state:
+          example: "This is a message."
+          description: The content of the message.
+        image:
           type: string
-          example: CA
-        zip:
+          example: "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U"
+          description: URL to an image associated with the message.
+        createdAt:
           type: string
-          example: "94301"
-      xml:
-        name: address
-    # Conversation outline (changeable)
+          format: date-time
+          description: The timestamp when the message was created.
+        conversationId:
+          type: string
+          pattern: "^[0-9a-f]{24}$"
+          description: MongoDB _id of the associated conversation.
+        senderId:
+          type: string
+          pattern: "^[0-9a-f]{24}$"
+          description: MongoDB _id of the sender.
+
     Conversation:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          example: 10
-        username:
           type: string
-          example: theUser
-        firstName:
+          pattern: "^[0-9a-f]{24}$"
+          description: MongoDB _id of the conversation.
+        createdAt:
           type: string
-          example: John
-        lastName:
+          format: date-time
+          description: The timestamp when the conversation was created.
+        lastMessageAt:
           type: string
-          example: James
-        email:
+          format: date-time
+          description: The timestamp of the last message in the conversation.
+        name:
           type: string
-          example: john@email.com
-        password:
-          type: string
-          example: "12345"
-        phone:
-          type: string
-          example: "12345"
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
-          example: 1
-      xml:
-        name: user
+          description: The name of the conversation.
+        isGroup:
+          type: boolean
+          description: Indicates whether the conversation is a group conversation or not.
+        messagesIds:
+          type: array
+          items:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
+          description: An array of MongoDB _ids of messages associated with this conversation.
+        userIds:
+          type: array
+          items:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
+          description: An array of MongoDB _ids of users associated with this conversation. These user IDs can be used to reference the User model.
