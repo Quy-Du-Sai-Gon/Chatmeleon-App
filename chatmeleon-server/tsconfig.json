@@ -8,7 +8,4 @@
     "rootDir": "./",
     "strict": true
   },
-  "include": [
-    "./"
-  ]
 }
