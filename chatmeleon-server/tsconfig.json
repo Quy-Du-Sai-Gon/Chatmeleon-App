@@ -5,7 +5,7 @@
     "esModuleInterop": true, //This is required since some of the dependencies are CommonJS packages.
     "moduleResolution": "node", // required,
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src",
     "strict": true
   },
 }
