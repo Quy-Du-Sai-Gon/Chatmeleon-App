@@ -204,6 +204,15 @@ paths:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                     description: The ID of the earliest message of the current messages page.
+  /messages:
+    post:
+      description: Create a new message.
+      tags:
+        - messages
+      summary: Create a message
+      responses:
+        "200":
+          description: Message created successfully.
   /users/{userId}:
     get:
       description: Retrieve information about a user identified by the user's ID.
