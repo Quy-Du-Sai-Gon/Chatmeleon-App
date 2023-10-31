@@ -1,7 +1,7 @@
 import prisma from "../libs/prismadb";
 import { Request, Response } from "express";
 
-const getAllMessagesByConversationId = async (req: Request, res: Response) => {
+const getAllMessagesByConversationIdWithPagination = async (req: Request, res: Response) => {
   const conversationId = req.query.conversationId as string;
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
   const cursor = req.query.cursor as string | undefined;
@@ -77,7 +77,7 @@ const createMessage = async (req: Request, res: Response) => {
 };
 
 export default {
-  getAllMessagesByConversationId,
+  getAllMessagesByConversationIdWithPagination,
   getAllMessagesByUserId,
   createMessage,
 };

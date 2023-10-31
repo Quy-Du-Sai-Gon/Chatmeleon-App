@@ -5,7 +5,7 @@ export const messageRoute = Router();
 
 messageRoute.get(
   "/conversations/:conversationId/messages",
-  messageController.getAllMessagesByConversationId
+  messageController.getAllMessagesByConversationIdWithPagination
 );
 
 messageRoute.get(

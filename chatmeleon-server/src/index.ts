@@ -4,10 +4,10 @@ import "express-async-errors";
 import dotenv from "dotenv";
 dotenv.config();
 
-import errorMiddleware from "../middlewares/error-handler";
-import { messageRoute } from "../routes/message-route";
-import { conversationRoute } from "../routes/conversation-route";
-import { userRoute } from "../routes/user-route";
+import errorMiddleware from "./middlewares/error-handler";
+import { messageRoute } from "./routes/message-route";
+import { conversationRoute } from "./routes/conversation-route";
+import { userRoute } from "./routes/user-route";
 
 const app = express();
 
