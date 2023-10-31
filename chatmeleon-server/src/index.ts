@@ -1,11 +1,14 @@
 import express, { Request, Response } from "express";
+
 import "express-async-errors";
 
 import dotenv from "dotenv";
 
-const swaggerUi = require("swagger-ui-express");
+import swaggerUi from "swagger-ui-express";
+
 // Requires 'yamljs' package to load YAML files
-const YAML = require("yamljs");
+import YAML from "yamljs";
+
 const swaggerDocument = YAML.load("../documentation/chatmeleon-swagger.yaml");
 
 dotenv.config();
