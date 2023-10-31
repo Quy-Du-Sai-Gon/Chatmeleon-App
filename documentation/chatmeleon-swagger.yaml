@@ -161,49 +161,6 @@ paths:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                     description: The ID of the earliest message of the current messages page.
-  /users/{userId}/messages:
-    get:
-      description: Retrieve a page of messages of a conversation identified by the user's ID with the support of cursor-based pagination.
-      tags:
-        - messages
-      summary: Get all messages of a user
-      parameters:
-        - name: userId
-          in: path
-          description: The unique user ID.
-          required: true
-          schema:
-            type: string
-          example: "fdf919880bcde1e42cb3e588"
-        - name: pageSize
-          in: query
-          description: The number of message in one page.
-          schema:
-            type: integer
-            default: 10
-        - name: cursor
-          in: query
-          description: The ID of the earliest message of the previous messages page.
-          schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
-            default: null
-      responses:
-        "200":
-          description: All messages's information.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  allMessages:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Message"
-                  nextCursor:
-                    type: string
-                    pattern: "^[0-9a-f]{24}$"
-                    description: The ID of the earliest message of the current messages page.
   /messages:
     post:
       description: Create a new message.
