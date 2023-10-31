@@ -8,9 +8,4 @@ messageRoute.get(
   messageController.getAllMessagesByConversationIdWithPagination
 );
 
-messageRoute.get(
-  "/users/:userId/messages",
-  messageController.getAllMessagesByUserId
-);
-
 messageRoute.post("/messages", messageController.createMessage);
