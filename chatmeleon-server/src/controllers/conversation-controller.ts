@@ -47,7 +47,7 @@ const getConversationsByUserIdWithPagination = async (
   });
 };
 
-const postConversation = async (req: Request, res: Response) => {
+const createConversation = async (req: Request, res: Response) => {
   const { lastMessageAt, name, isGroup, messagesIds, userIds } = req.body;
 
   const createdAt = new Date().toISOString();
@@ -87,5 +87,5 @@ const postConversation = async (req: Request, res: Response) => {
 export default {
   getConversationById,
   getConversationsByUserIdWithPagination,
-  postConversation,
+  createConversation,
 };
