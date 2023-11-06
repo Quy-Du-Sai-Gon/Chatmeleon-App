@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import useRoutes from "@/app/hook/useRoutes";
 import { User } from "@prisma/client";
@@ -25,8 +25,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ currentUser }) => {
         lg:w-20
         xl:px-6
         lg:overflow-y-auto
-        lg:bg-white
-        lg:border-r-[1px]
+        lg:bg-lavenderLizard-dark
         lg:pb-4
         lg:flex
         lg:flex-col
