@@ -7,6 +7,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import jwt from "jsonwebtoken";
 
 import prisma from "@/app/libs/prismadb";
+import { ChatTokenPayload } from "@/types/auth";
 
 // Define authentication options
 export const authOptions: NextAuthOptions = {
@@ -66,7 +67,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.chatToken = jwt.sign(
-          { id: user.id },
+          { userId: user.id } satisfies ChatTokenPayload,
           process.env.CHAT_TOKEN_SECRET!
         );
       }
