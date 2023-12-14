@@ -43,6 +43,8 @@ paths:
             type: string
             pattern: "^[0-9a-f]{24}$"
             default: null
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: An array of conversations related to the user.
@@ -77,6 +79,8 @@ paths:
           schema:
             type: string
           example: "fdf919880bcde1e42cb3e588"
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: A conversation record.
@@ -98,6 +102,8 @@ paths:
       tags:
         - conversations
       summary: Create a conversation.
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: Conversation created successfully.
@@ -138,6 +144,8 @@ paths:
             type: string
             pattern: "^[0-9a-f]{24}$"
             default: null
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: All messages's information.
@@ -166,6 +174,8 @@ paths:
       tags:
         - messages
       summary: Create a message
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: Message created successfully.
