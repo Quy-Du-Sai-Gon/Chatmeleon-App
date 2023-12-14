@@ -12,3 +12,8 @@ userRelationshipRoute.put(
   "/friend/accept",
   userRelationshipController.createFriendRelationship
 );
+
+userRelationshipRoute.delete(
+  "/friend/decline",
+  userRelationshipController.deleteFriendRequestRelationship
+);
