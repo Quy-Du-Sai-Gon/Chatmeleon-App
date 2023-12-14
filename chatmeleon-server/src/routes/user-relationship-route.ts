@@ -7,3 +7,8 @@ userRelationshipRoute.post(
   "/friend/send",
   userRelationshipController.createFriendRequestRelationship
 );
+
+userRelationshipRoute.put(
+  "/friend/accept",
+  userRelationshipController.createFriendRelationship
+);
