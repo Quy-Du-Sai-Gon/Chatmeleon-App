@@ -23,20 +23,13 @@ tags:
   - name: conversations
   - name: messages
 paths:
-  /users/{userId}/conversations:
+  /users/conversations:
     get:
-      description: Retrieve a page of conversations associated with a user, identified by their user ID with the support of cursor-based pagination.
+      description: Retrieve a page of conversations associated with a user, with the support of cursor-based pagination.
       tags:
         - conversations
       summary: Get user's conversations
       parameters:
-        - name: userId
-          in: path
-          description: The unique user ID.
-          required: true
-          schema:
-            type: string
-          example: "3564f38ce881480099dd7cb1"
         - name: pageSize
           in: query
           description: The number of conversations in one page.
@@ -99,27 +92,21 @@ paths:
           description: Forbidden - User not allowed to retrieve the conversation.
         "404":
           description: Not Found - Conversation not found.
+  /conversations:
     post:
-      description: Create a conversation by its ID.
+      description: Create a conversation.
       tags:
         - conversations
-      parameters:
-        - name: conversationId
-          in: path
-          description: The unique conversation ID.
-          required: true
-          schema:
-            type: string
-          example: "fdf919880bcde1e42cb3e588"
+      summary: Create a conversation.
       responses:
         "200":
-          description: Conversation updated successfully.
+          description: Conversation created successfully.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Conversation"
       requestBody:
-        description: Conversation data to update.
+        description: Conversation data to create.
         content:
           application/json:
             schema:
@@ -182,7 +169,23 @@ paths:
       responses:
         "200":
           description: Message created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+      requestBody:
+        description: Conversation data to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Message"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer token for authentication. Use the format "Bearer YOUR_JWT_TOKEN". The JWT token is signed with HS256 using the a secret key.
   schemas:
     User:
       type: object
