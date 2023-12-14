@@ -42,7 +42,6 @@ const createFriendRelationship = async (req: Request, res: Response) => {
   });
 
   if (existingRelationship && existingRelationship.length === 2) {
-    // Update the type to "friend" for both users
     const updateRelationship = await prisma.user_Relationship.updateMany({
       where: {
         OR: [
@@ -93,7 +92,6 @@ const deleteFriendRequestRelationship = async (req: Request, res: Response) => {
   });
 
   if (existingRelationship && existingRelationship.length === 2) {
-    // Update the type to "friend" for both users
     const updateRelationship = await prisma.user_Relationship.deleteMany({
       where: {
         OR: [
