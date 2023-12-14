@@ -67,9 +67,10 @@ paths:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                     description: The ID of the earliest conversation of the current conversations page.
-
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
         "404":
-          description: User not found or no conversations found for the specified user.
+          description: Not Found - User not found or no conversations found for the specified user.
   /conversations/{conversationId}:
     get:
       description: Retrieve a conversation by its ID.
@@ -93,6 +94,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Conversation"
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Forbidden - User not allowed to retrieve the conversation.
+        "404":
+          description: Not Found - Conversation not found.
     post:
       description: Create a conversation by its ID.
       tags:
@@ -161,6 +168,12 @@ paths:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                     description: The ID of the earliest message of the current messages page.
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Forbidden - User not allowed to retrieve the messages of the conversation.
+        "404":
+          description: Not Found - Conversation not found.
   /messages:
     post:
       description: Create a new message.
