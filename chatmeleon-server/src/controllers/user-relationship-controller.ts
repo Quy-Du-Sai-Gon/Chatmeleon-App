@@ -20,3 +20,7 @@ const createFriendRequestRelationship = async (req: Request, res: Response) => {
 
   res.json(relationship);
 };
+
+export default {
+  createFriendRequestRelationship,
+};
