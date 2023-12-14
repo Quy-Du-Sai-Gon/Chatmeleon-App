@@ -22,7 +22,6 @@ servers:
 tags:
   - name: conversations
   - name: messages
-  - name: users
 paths:
   /users/{userId}/conversations:
     get:
@@ -183,27 +182,6 @@ paths:
       responses:
         "200":
           description: Message created successfully.
-  /users/{userId}:
-    get:
-      description: Retrieve information about a user identified by the user's ID.
-      tags:
-        - users
-      summary: Get a user
-      parameters:
-        - name: userId
-          in: path
-          description: The unique user ID.
-          required: true
-          schema:
-            type: string
-          example: "3564f38ce881480099dd7cb1"
-      responses:
-        "200":
-          description: User's information.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
 components:
   schemas:
     User:
