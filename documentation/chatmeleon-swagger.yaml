@@ -25,10 +25,10 @@ tags:
 paths:
   /users/conversations:
     get:
-      description: Retrieve a page of conversations associated with a user, with the support of cursor-based pagination.
+      description: Retrieve a page of conversations associated with the current logged in user, with the support of cursor-based pagination.
       tags:
         - conversations
-      summary: Get user's conversations
+      summary: Get current user's conversations
       parameters:
         - name: pageSize
           in: query
@@ -184,7 +184,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
       requestBody:
-        description: Conversation data to create.
+        description: Message data to create.
         content:
           application/json:
             schema:
@@ -195,7 +195,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Bearer token for authentication. Use the format "Bearer YOUR_JWT_TOKEN". The JWT token is signed with HS256 using the a secret key.
+      description: Bearer token for authentication. Use the format "Bearer YOUR_JWT_TOKEN". The JWT token is signed with HS256 using a secret key.
   schemas:
     User:
       type: object
