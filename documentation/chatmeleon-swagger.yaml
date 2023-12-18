@@ -23,7 +23,7 @@ tags:
   - name: conversations
   - name: messages
 paths:
-  /users/conversations:
+  /conversations:
     get:
       description: Retrieve a page of conversations associated with the current logged in user, with the support of cursor-based pagination.
       tags:
@@ -65,6 +65,26 @@ paths:
           description: Unauthorized - JWT token is missing or invalid.
         "404":
           description: Not Found - User not found or no conversations found for the specified user.
+    post:
+      description: Create a conversation.
+      tags:
+        - conversations
+      summary: Create a conversation.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Conversation created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+      requestBody:
+        description: Conversation data to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Conversation"
   /conversations/{conversationId}:
     get:
       description: Retrieve a conversation by its ID.
@@ -96,27 +116,6 @@ paths:
           description: Forbidden - User not allowed to retrieve the conversation.
         "404":
           description: Not Found - Conversation not found.
-  /conversations:
-    post:
-      description: Create a conversation.
-      tags:
-        - conversations
-      summary: Create a conversation.
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Conversation created successfully.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Conversation"
-      requestBody:
-        description: Conversation data to create.
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Conversation"
   /conversations/{conversationId}/messages:
     get:
       description: Retrieve a page of messages of a conversation identified by the conversation's ID with the support of cursor-based pagination.
