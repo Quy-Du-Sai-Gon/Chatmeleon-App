@@ -22,22 +22,14 @@ servers:
 tags:
   - name: conversations
   - name: messages
-  - name: users
 paths:
-  /users/{userId}/conversations:
+  /conversations:
     get:
-      description: Retrieve a page of conversations associated with a user, identified by their user ID with the support of cursor-based pagination.
+      description: Retrieve a page of conversations associated with the current logged in user, with the support of cursor-based pagination.
       tags:
         - conversations
-      summary: Get user's conversations
+      summary: Get current user's conversations
       parameters:
-        - name: userId
-          in: path
-          description: The unique user ID.
-          required: true
-          schema:
-            type: string
-          example: "3564f38ce881480099dd7cb1"
         - name: pageSize
           in: query
           description: The number of conversations in one page.
@@ -51,6 +43,8 @@ paths:
             type: string
             pattern: "^[0-9a-f]{24}$"
             default: null
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: An array of conversations related to the user.
@@ -67,9 +61,30 @@ paths:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                     description: The ID of the earliest conversation of the current conversations page.
-
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
         "404":
-          description: User not found or no conversations found for the specified user.
+          description: Not Found - User not found or no conversations found for the specified user.
+    post:
+      description: Create a conversation.
+      tags:
+        - conversations
+      summary: Create a conversation.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Conversation created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+      requestBody:
+        description: Conversation data to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Conversation"
   /conversations/{conversationId}:
     get:
       description: Retrieve a conversation by its ID.
@@ -84,6 +99,8 @@ paths:
           schema:
             type: string
           example: "fdf919880bcde1e42cb3e588"
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: A conversation record.
@@ -93,31 +110,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Conversation"
-    post:
-      description: Create a conversation by its ID.
-      tags:
-        - conversations
-      parameters:
-        - name: conversationId
-          in: path
-          description: The unique conversation ID.
-          required: true
-          schema:
-            type: string
-          example: "fdf919880bcde1e42cb3e588"
-      responses:
-        "200":
-          description: Conversation updated successfully.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Conversation"
-      requestBody:
-        description: Conversation data to update.
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Conversation"
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Forbidden - User not allowed to retrieve the conversation.
+        "404":
+          description: Not Found - Conversation not found.
   /conversations/{conversationId}/messages:
     get:
       description: Retrieve a page of messages of a conversation identified by the conversation's ID with the support of cursor-based pagination.
@@ -145,6 +143,8 @@ paths:
             type: string
             pattern: "^[0-9a-f]{24}$"
             default: null
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: All messages's information.
@@ -161,37 +161,40 @@ paths:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                     description: The ID of the earliest message of the current messages page.
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Forbidden - User not allowed to retrieve the messages of the conversation.
+        "404":
+          description: Not Found - Conversation not found.
   /messages:
     post:
       description: Create a new message.
       tags:
         - messages
       summary: Create a message
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: Message created successfully.
-  /users/{userId}:
-    get:
-      description: Retrieve information about a user identified by the user's ID.
-      tags:
-        - users
-      summary: Get a user
-      parameters:
-        - name: userId
-          in: path
-          description: The unique user ID.
-          required: true
-          schema:
-            type: string
-          example: "3564f38ce881480099dd7cb1"
-      responses:
-        "200":
-          description: User's information.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/Message"
+      requestBody:
+        description: Message data to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Message"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer token for authentication. Use the format "Bearer YOUR_JWT_TOKEN". The JWT token is signed with HS256 using a secret key.
   schemas:
     User:
       type: object
