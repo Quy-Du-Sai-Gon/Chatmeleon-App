@@ -1,18 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-
-import { ChatTokenPayload } from "@chatmeleon-app/types/auth";
-export { ChatTokenPayload };
-
-export const isChatTokenPayload = (obj: any): obj is ChatTokenPayload =>
-  obj && typeof obj.userId === "string";
-
-/**
- * Represents an extended Request object with an optional `auth` property of type `ChatTokenPayload`.
- */
-export interface AuthRequest extends Request {
-  auth?: ChatTokenPayload;
-}
+import { isChatTokenPayload } from "../types/auth";
 
 /**
  * Middleware function to require authentication for a route.
@@ -24,7 +12,7 @@ export interface AuthRequest extends Request {
  * @param next - The next function to call.
  */
 export const requireAuth = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
