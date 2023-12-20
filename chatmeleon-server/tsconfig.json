@@ -11,4 +11,7 @@
       "@chatmeleon-app/*": ["../chatmeleon-app/*"]
     }
   },
+  "ts-node": {
+    "files": true
+  }
 }
