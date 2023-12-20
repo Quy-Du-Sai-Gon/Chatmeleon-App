@@ -6,6 +6,10 @@
     "moduleResolution": "node", // required,
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true
+    "strict": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@chatmeleon-app/*": ["../../chatmeleon-app/*"]
+    }
   },
 }
