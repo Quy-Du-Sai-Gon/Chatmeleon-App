@@ -7,9 +7,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
-    "baseUrl": "./src",
     "paths": {
-      "@chatmeleon-app/*": ["../../chatmeleon-app/*"]
+      "@chatmeleon-app/*": ["../chatmeleon-app/*"]
     }
   },
 }
