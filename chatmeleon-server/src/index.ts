@@ -13,11 +13,11 @@ const swaggerDocument = YAML.load("../documentation/chatmeleon-swagger.yaml");
 
 dotenv.config();
 
-
 import errorMiddleware from "./middlewares/error-handler";
 import { messageRoute } from "./routes/message-route";
 import { conversationRoute } from "./routes/conversation-route";
 import { userRoute } from "./routes/user-route";
+import { userRelationshipRoute } from "./routes/user-relationship-route";
 
 const app = express();
 
@@ -35,6 +35,7 @@ app.use(express.json());
 app.use(messageRoute);
 app.use(conversationRoute);
 app.use(userRoute);
+app.use(userRelationshipRoute);
 
 app.use(errorMiddleware);
 

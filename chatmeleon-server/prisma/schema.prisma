@@ -30,6 +30,8 @@ model User {
     seenMessages   Message[] @relation("Seen", fields: [seenMessageIds], references: [id])
 
     messages Message[]
+
+    Relationship User_Relationship[]
 }
 
 // Define the Account model
@@ -86,4 +88,16 @@ model Message {
 
     senderId String @db.ObjectId
     sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+// Define the Friendship model
+model User_Relationship {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    type      String
+    createdAt DateTime @default(now())
+
+    relatingUser   User   @relation(fields: [relatingUserId], references: [id])
+    relatingUserId String @db.ObjectId
+
+    relatedUserId String @db.ObjectId
 }

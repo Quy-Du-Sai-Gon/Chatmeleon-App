@@ -14,5 +14,5 @@ conversationRoute.get(
 
 conversationRoute.post(
   "/conversations",
-  conversationControler.postConversation
+  conversationControler.createConversation
 );
