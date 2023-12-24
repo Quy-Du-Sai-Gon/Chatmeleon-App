@@ -6,26 +6,31 @@ const getConversationById = async (req: Request, res: Response) => {
   const userConversations = await prisma.conversation.findUnique({
     where: {
       id: id,
+      userIds: {
+        has: req.auth!.userId,
+      },
     },
   });
+
+  if (!userConversations) {
+    return res
+      .status(404)
+      .type("text/plain")
+      .send("Not Found - Conversation not found.");
+  }
 
   res.json(userConversations);
 };
 
-const getConversationsByUserIdWithPagination = async (
-  req: Request,
-  res: Response
-) => {
-  const userId = req.query.userId as string;
+const getConversationsWithPagination = async (req: Request, res: Response) => {
+  const { userId } = req.auth!;
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
   const cursor = req.query.cursor as string | undefined;
 
   const conversations = await prisma.conversation.findMany({
     where: {
-      users: {
-        some: {
-          id: userId,
-        },
+      userIds: {
+        has: userId,
       },
       id: {
         gt: cursor,
@@ -49,6 +54,7 @@ const getConversationsByUserIdWithPagination = async (
 
 const postConversation = async (req: Request, res: Response) => {
   const { lastMessageAt, name, isGroup, messagesIds, userIds } = req.body;
+  userIds.unshift(req.auth!.userId);
 
   const createdAt = new Date().toISOString();
 
@@ -86,6 +92,6 @@ const postConversation = async (req: Request, res: Response) => {
 
 export default {
   getConversationById,
-  getConversationsByUserIdWithPagination,
+  getConversationsWithPagination,
   postConversation,
 };
