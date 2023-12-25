@@ -6,12 +6,12 @@ const createFriendRequestRelationship = async (req: Request, res: Response) => {
   const relationship = await prisma.user_Relationship.createMany({
     data: [
       {
-        type: "sending_friend_request",
+        type: "SENDING_FRIEND_REQUEST",
         relatingUserId: relatingUserId,
         relatedUserId: relatedUserId,
       },
       {
-        type: "pending_friend_request",
+        type: "PENDING_FRIEND_REQUEST",
         relatingUserId: relatedUserId,
         relatedUserId: relatingUserId,
       },
@@ -30,12 +30,12 @@ const createFriendRelationship = async (req: Request, res: Response) => {
         {
           relatingUserId: relatingUserId,
           relatedUserId: relatedUserId,
-          type: "pending_friend_request",
+          type: "PENDING_FRIEND_REQUEST",
         },
         {
           relatingUserId: relatedUserId,
           relatedUserId: relatingUserId,
-          type: "sending_friend_request",
+          type: "SENDING_FRIEND_REQUEST",
         },
       ],
     },
@@ -48,17 +48,17 @@ const createFriendRelationship = async (req: Request, res: Response) => {
           {
             relatingUserId: relatingUserId,
             relatedUserId: relatedUserId,
-            type: "pending_friend_request",
+            type: "PENDING_FRIEND_REQUEST",
           },
           {
             relatingUserId: relatedUserId,
             relatedUserId: relatingUserId,
-            type: "sending_friend_request",
+            type: "SENDING_FRIEND_REQUEST",
           },
         ],
       },
       data: {
-        type: "friend",
+        type: "FRIEND",
       },
     });
 
@@ -80,12 +80,12 @@ const deleteFriendRequestRelationship = async (req: Request, res: Response) => {
         {
           relatingUserId: relatingUserId,
           relatedUserId: relatedUserId,
-          type: "pending_friend_request",
+          type: "PENDING_FRIEND_REQUEST",
         },
         {
           relatingUserId: relatedUserId,
           relatedUserId: relatingUserId,
-          type: "sending_friend_request",
+          type: "SENDING_FRIEND_REQUEST",
         },
       ],
     },
@@ -98,12 +98,12 @@ const deleteFriendRequestRelationship = async (req: Request, res: Response) => {
           {
             relatingUserId: relatingUserId,
             relatedUserId: relatedUserId,
-            type: "pending_friend_request",
+            type: "PENDING_FRIEND_REQUEST",
           },
           {
             relatingUserId: relatedUserId,
             relatedUserId: relatingUserId,
-            type: "sending_friend_request",
+            type: "SENDING_FRIEND_REQUEST",
           },
         ],
       },
