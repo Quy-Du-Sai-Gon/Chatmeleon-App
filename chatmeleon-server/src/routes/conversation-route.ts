@@ -15,9 +15,3 @@ conversationRoute.get(
   requireAuth,
   conversationControler.getConversationsWithPagination
 );
-
-conversationRoute.post(
-  "/conversations",
-  requireAuth,
-  conversationControler.postConversation
-);

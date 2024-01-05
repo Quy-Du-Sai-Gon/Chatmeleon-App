@@ -1,97 +1,55 @@
 import prisma from "../libs/prismadb";
 import { Request, Response } from "express";
 
+// Retrieve a specific conversation by ID, ensuring user authorization
 const getConversationById = async (req: Request, res: Response) => {
-  const id = req.params.conversationId;
-  const userConversations = await prisma.conversation.findUnique({
+  const { userId } = req.auth!; // Get authenticated user's ID
+  const conversationId = req.params.conversationId;
+
+  const conversation = await prisma.conversation.findUniqueOrThrow({
     where: {
-      id: id,
+      id: conversationId,
       userIds: {
-        has: req.auth!.userId,
+        has: userId, // Check if authorized user is part of the conversation
       },
     },
   });
 
-  if (!userConversations) {
-    return res
-      .status(404)
-      .type("text/plain")
-      .send("Not Found - Conversation not found.");
-  }
-
-  res.json(userConversations);
+  res.json(conversation); // Send the retrieved conversation as JSON response
 };
 
+// Fetch conversations for the authorized user with pagination
 const getConversationsWithPagination = async (req: Request, res: Response) => {
-  const { userId } = req.auth!;
-  const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
-  const cursor = req.query.cursor as string | undefined;
+  const { userId } = req.auth!; // Get authenticated user's ID
+  const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
+  const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
 
   const conversations = await prisma.conversation.findMany({
     where: {
       userIds: {
-        has: userId,
+        has: userId, // Filter conversations for the authorized user
       },
       id: {
-        gt: cursor,
+        gt: cursor, // Retrieve conversations after the provided cursor (if any)
       },
     },
     orderBy: {
-      createdAt: "asc",
+      lastMessageAt: "asc", // Order conversations by last message time in ascending order
     },
-    take: pageSize,
+    take: pageSize, // Limit results to the specified page size
   });
 
   // Extract the last conversation's cursor for pagination.
-  const lastConversation = conversations[conversations.length - 1];
-  const nextCursor = lastConversation ? lastConversation.id : null;
+  const lastConversation = conversations[conversations.length - 1]; // Get the last conversation for pagination
+  const nextCursor = lastConversation ? lastConversation.id : null; // Prepare the cursor for the next page
 
   res.json({
-    conversations,
-    nextCursor,
+    conversations, // Send the fetched conversations in the response
+    nextCursor, // Include the cursor for further pagination
   });
-};
-
-const postConversation = async (req: Request, res: Response) => {
-  const { lastMessageAt, name, isGroup, messagesIds, userIds } = req.body;
-  userIds.unshift(req.auth!.userId);
-
-  const createdAt = new Date().toISOString();
-
-  const messages = await prisma.message.findMany({
-    where: {
-      id: { in: messagesIds },
-    },
-  });
-
-  const users = await prisma.user.findMany({
-    where: {
-      id: { in: userIds },
-    },
-  });
-
-  const newConversation = await prisma.conversation.create({
-    data: {
-      createdAt,
-      lastMessageAt,
-      name,
-      isGroup,
-      messagesIds,
-      messages: {
-        connect: messages.map((message) => ({ id: message.id })),
-      },
-      userIds,
-      users: {
-        connect: users.map((user) => ({ id: user.id })),
-      },
-    },
-  });
-
-  res.json(newConversation);
 };
 
 export default {
   getConversationById,
   getConversationsWithPagination,
-  postConversation,
 };
