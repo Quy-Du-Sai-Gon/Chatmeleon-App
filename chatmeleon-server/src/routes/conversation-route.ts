@@ -13,5 +13,5 @@ conversationRoute.get(
 conversationRoute.get(
   "/conversations",
   requireAuth,
-  conversationControler.getConversationsWithPagination
+  conversationControler.getConversationsByUserIdWithPagination
 );

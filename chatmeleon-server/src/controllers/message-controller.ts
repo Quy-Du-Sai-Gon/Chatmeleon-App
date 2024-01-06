@@ -1,57 +1,69 @@
 import prisma from "../libs/prismadb";
 import { Request, Response } from "express";
 
-/**
- * Whether the conversation exists and the user is a member of it.
- */
-const hasConversation = async (
-  userId: string,
-  conversationId: string
-): Promise<boolean> =>
-  (await prisma.conversation.count({
-    where: { id: conversationId, userIds: { has: userId } },
-  })) > 0;
-
-const getAllMessagesByConversationIdWithPagination = async (
+// Fetch messages for the conversation with pagination
+const getMessagesByConversationIdWithPagination = async (
   req: Request,
   res: Response
 ) => {
+  const { userId } = req.auth!; // Get authenticated user's ID
   const conversationId = req.query.conversationId as string;
-  const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
-  const cursor = req.query.cursor as string | undefined;
+  const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
+  const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
 
-  if (!(await hasConversation(req.auth!.userId, conversationId))) {
-    return res
-      .status(403)
-      .type("text/plain")
-      .send(
-        "Forbidden: User not allowed to retrieve the messages of the conversation."
-      );
-  }
+  prisma
+    .$transaction(async (tx) => {
+      try {
+        // Validate conversation existence
+        await tx.conversation.findFirstOrThrow({
+          where: {
+            id: conversationId,
+            userIds: { has: userId },
+          },
+        });
 
-  const allMessages = await prisma.message.findMany({
-    where: {
-      conversation: {
-        id: conversationId,
-      },
-      id: {
-        gt: cursor,
-      },
-    },
-    take: pageSize,
-  });
+        const allMessages = await tx.message.findMany({
+          where: {
+            conversation: {
+              id: conversationId, // Filter messages for the conversation
+            },
+            id: {
+              gt: cursor, // Retrieve conversations after the provided cursor (if any)
+            },
+          },
+          orderBy: {
+            createdAt: "asc", // Order messages by creation date in ascending order
+          },
+          take: pageSize, // Limit results to the specified page size
+        });
 
-  const lastMessage = allMessages[allMessages.length - 1];
-  const nextCursor = lastMessage ? lastMessage.id : null;
+        // Extract the last messages's cursor for pagination.
+        const lastMessage = allMessages[allMessages.length - 1];
+        const nextCursor = lastMessage ? lastMessage.id : null;
 
-  res.json({
-    allMessages,
-    nextCursor,
-  });
+        return res.json({
+          allMessages, // Send the fetched messages in the response
+          nextCursor, // Include the cursor for further pagination
+        });
+      } catch (error) {
+        throw error;
+      }
+    })
+    .catch((error) => {
+      // Log the error and send a 403 Unauthorized response
+      console.error("Transaction failed:", error);
+      res
+        .status(403)
+        .type("text/plain")
+        .send("Unauthorized: User is unauthorized");
+    });
 };
 
 // Fetch messages for the authorized user with pagination
-const getAllMessagesByUserId = async (req: Request, res: Response) => {
+const getMessagesByUserIdWithPagination = async (
+  req: Request,
+  res: Response
+) => {
   const { userId } = req.auth!; // Get authenticated user's ID
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
   const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
@@ -64,6 +76,9 @@ const getAllMessagesByUserId = async (req: Request, res: Response) => {
       id: {
         gt: cursor, // Retrieve messages after the provided cursor (if any)
       },
+    },
+    orderBy: {
+      createdAt: "asc",
     },
     take: pageSize, // Limit results to the specified page size
   });
@@ -78,36 +93,67 @@ const getAllMessagesByUserId = async (req: Request, res: Response) => {
   });
 };
 
+// Function to create a new message
 const createMessage = async (req: Request, res: Response) => {
+  // Extract data from request body and authentication
   const { body, image, conversationId } = req.body;
   const { userId: senderId } = req.auth!;
 
-  if (!(await hasConversation(senderId, conversationId))) {
-    return res
-      .status(404)
-      .type("text/plain")
-      .send("Not Found - Conversation not found.");
-  }
+  prisma
+    .$transaction(async (tx) => {
+      try {
+        // Validate conversation existence
+        await tx.conversation.findFirstOrThrow({
+          where: {
+            id: conversationId,
+            userIds: { has: senderId },
+          },
+        });
 
-  await prisma.message.create({
-    data: {
-      body,
-      image,
-      conversation: {
-        connect: {
-          id: conversationId,
-        },
-      },
-      sender: {
-        connect: {
-          id: senderId,
-        },
-      },
-    },
-  });
+        // Create the new message within the transaction
+        const newMessage = await tx.message.create({
+          data: {
+            body,
+            image,
+            conversation: {
+              connect: {
+                id: conversationId,
+              },
+            },
+            sender: {
+              connect: {
+                id: senderId,
+              },
+            },
+          },
+        });
 
-  // Send success response
-  res.sendStatus(200);
+        // Update conversation with new message ID and timestamp
+        await tx.conversation.update({
+          where: {
+            id: conversationId,
+          },
+          data: {
+            lastMessageAt: newMessage.createdAt,
+            messagesIds: { push: newMessage.id },
+          },
+        });
+
+        // Send success response on successful transaction
+        return res.status(200).type("text/plain").send("OK");
+      } catch (error) {
+        // Rethrow the error to trigger the transaction rollback
+        throw error;
+      }
+    })
+    .catch((error) => {
+      // Log the error and send a 403 Unauthorized response
+      console.error("Transaction failed:", error);
+      res
+        .status(403)
+        .type("text/plain")
+        .send("Unauthorized: User is unauthorized");
+    });
 };
 
 // Controller for creating a new original conversation with initial messages
@@ -116,54 +162,88 @@ const createOriginalConversationAndFirstMessages = async (
   res: Response
 ) => {
   // Extract data from request body and authentication
-  const { userIds, body, image } = req.body;
+  const { relatedUserId, body, image } = req.body;
   const { userId: senderId } = req.auth!;
 
-  // Create the conversation in the database
-  const newConversation = await prisma.conversation.create({
-    data: {
-      userIds: [senderId, userIds], // Combine sender and recipients
-      isGroup: false, // One-on-one conversation
-      original: true, // Mark as "original" conversation
-    },
-  });
+  // Utilize a Prisma transaction to ensure atomicity and data consistency
+  prisma
+    .$transaction(async (tx) => {
+      try {
+        // Check for existing original conversation between the two users
+        const existingConversation = await tx.conversation.findFirst({
+          where: {
+            userIds: {
+              hasEvery: [senderId, relatedUserId], // Must include both sender and recipient
+            },
+            original: true, // Only consider original conversations
+          },
+        });
 
-  // Create initial messages for the conversation
-  const createdMessage = await prisma.message.create({
-    data: {
-      body, // Message content
-      image, // Optional image URL
-      conversation: {
-        connect: {
-          id: newConversation.id, // Link to the created conversation
-        },
-      },
-      sender: {
-        connect: {
-          id: senderId, // Associate with the sender
-        },
-      },
-    },
-  });
+        if (existingConversation) {
+          // Conversation already exists, return an error code
+          return res
+            .status(409)
+            .type("text/plain")
+            .send("Conflicted: Original conversation already existed");
+        }
 
-  // Update conversation metadata
-  await prisma.conversation.update({
-    where: { id: newConversation.id },
-    data: {
-      messagesIds: {
-        push: createdMessage.id, // Add message ID to the array
-      },
-      lastMessageAt: createdMessage.createdAt, // Set last message timestamp
-    },
-  });
+        // Create the conversation in the database
+        const newConversation = await tx.conversation.create({
+          data: {
+            userIds: [senderId, relatedUserId], // Combine sender and recipients
+            isGroup: false, // One-on-one conversation
+            original: true, // Mark as "original" conversation
+          },
+        });
 
-  // Send success response
-  res.sendStatus(200);
+        // Create initial messages for the conversation
+        const createdMessage = await tx.message.create({
+          data: {
+            body, // Message content
+            image, // Optional image URL
+            conversation: {
+              connect: {
+                id: newConversation.id, // Link to the created conversation
+              },
+            },
+            sender: {
+              connect: {
+                id: senderId, // Associate with the sender
+              },
+            },
+          },
+        });
+
+        // Update conversation metadata
+        await tx.conversation.update({
+          where: { id: newConversation.id },
+          data: {
+            messagesIds: {
+              push: createdMessage.id, // Add message ID to the array
+            },
+            lastMessageAt: createdMessage.createdAt, // Set last message timestamp
+          },
+        });
+
+        // All operations successful, send a success response
+        return res.status(200).type("text/plain").send("OK");
+      } catch (error) {
+        throw error;
+      }
+    })
+    .catch((error) => {
+      // Log the error and send a 403 Unauthorized response
+      console.error("Transaction failed:", error);
+      res
+        .status(403)
+        .type("text/plain")
+        .send("Unauthorized: User is unauthorized");
+    });
 };
 
 export default {
-  getAllMessagesByConversationIdWithPagination,
-  getAllMessagesByUserId,
+  getMessagesByConversationIdWithPagination,
+  getMessagesByUserIdWithPagination,
   createOriginalConversationAndFirstMessages,
   createMessage,
 };

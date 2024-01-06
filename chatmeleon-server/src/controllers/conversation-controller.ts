@@ -19,7 +19,10 @@ const getConversationById = async (req: Request, res: Response) => {
 };
 
 // Fetch conversations for the authorized user with pagination
-const getConversationsWithPagination = async (req: Request, res: Response) => {
+const getConversationsByUserIdWithPagination = async (
+  req: Request,
+  res: Response
+) => {
   const { userId } = req.auth!; // Get authenticated user's ID
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
   const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
@@ -51,5 +54,5 @@ const getConversationsWithPagination = async (req: Request, res: Response) => {
 
 export default {
   getConversationById,
-  getConversationsWithPagination,
+  getConversationsByUserIdWithPagination,
 };
