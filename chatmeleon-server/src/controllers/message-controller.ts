@@ -25,7 +25,7 @@ const getAllMessagesByConversationIdWithPagination = async (
       .status(403)
       .type("text/plain")
       .send(
-        "Forbidden - User not allowed to retrieve the messages of the conversation."
+        "Forbidden: User not allowed to retrieve the messages of the conversation."
       );
   }
 
@@ -50,29 +50,31 @@ const getAllMessagesByConversationIdWithPagination = async (
   });
 };
 
+// Fetch messages for the authorized user with pagination
 const getAllMessagesByUserId = async (req: Request, res: Response) => {
-  const userId = req.query.userId as string;
-  const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
-  const cursor = req.query.cursor as string | undefined;
+  const { userId } = req.auth!; // Get authenticated user's ID
+  const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
+  const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
 
-  const allMessages = await prisma.message.findMany({
+  const messages = await prisma.message.findMany({
     where: {
       sender: {
-        id: userId,
+        id: userId, // Filter messages sent by the authenticated user
       },
       id: {
-        gt: cursor,
+        gt: cursor, // Retrieve messages after the provided cursor (if any)
       },
     },
-    take: pageSize,
+    take: pageSize, // Limit results to the specified page size
   });
 
-  const lastMessage = allMessages[allMessages.length - 1];
+  // Extract the last message's cursor for pagination.
+  const lastMessage = messages[messages.length - 1];
   const nextCursor = lastMessage ? lastMessage.id : null;
 
   res.json({
-    allMessages,
-    nextCursor,
+    messages, // Send the fetched messages in the response
+    nextCursor, // Include the cursor for further pagination
   });
 };
 
