@@ -42,7 +42,7 @@ const errorMiddleware = (
 
       // Unique constraint violation (e.g., unauthorized access)
       case "P2025":
-        res.status(403).json({ error: `Unauthorized` }); // Respond with 403 Forbidden
+        res.status(403).json({ error: `Unauthorized: User is unauthorized` }); // Respond with 403 Forbidden
         break;
 
       // Unexpected Prisma error
