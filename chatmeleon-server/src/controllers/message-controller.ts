@@ -106,11 +106,64 @@ const createMessage = async (req: Request, res: Response) => {
     },
   });
 
+  // Send success response
+  res.sendStatus(200);
+};
+
+// Controller for creating a new original conversation with initial messages
+const createOriginalConversationAndFirstMessages = async (
+  req: Request,
+  res: Response
+) => {
+  // Extract data from request body and authentication
+  const { userIds, body, image } = req.body;
+  const { userId: senderId } = req.auth!;
+
+  // Create the conversation in the database
+  const newConversation = await prisma.conversation.create({
+    data: {
+      userIds: [senderId, userIds], // Combine sender and recipients
+      isGroup: false, // One-on-one conversation
+      original: true, // Mark as "original" conversation
+    },
+  });
+
+  // Create initial messages for the conversation
+  const createdMessage = await prisma.message.create({
+    data: {
+      body, // Message content
+      image, // Optional image URL
+      conversation: {
+        connect: {
+          id: newConversation.id, // Link to the created conversation
+        },
+      },
+      sender: {
+        connect: {
+          id: senderId, // Associate with the sender
+        },
+      },
+    },
+  });
+
+  // Update conversation metadata
+  await prisma.conversation.update({
+    where: { id: newConversation.id },
+    data: {
+      messagesIds: {
+        push: createdMessage.id, // Add message ID to the array
+      },
+      lastMessageAt: createdMessage.createdAt, // Set last message timestamp
+    },
+  });
+
+  // Send success response
   res.sendStatus(200);
 };
 
 export default {
   getAllMessagesByConversationIdWithPagination,
   getAllMessagesByUserId,
+  createOriginalConversationAndFirstMessages,
   createMessage,
 };

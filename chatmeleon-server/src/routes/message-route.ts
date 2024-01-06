@@ -10,4 +10,10 @@ messageRoute.get(
   messageController.getAllMessagesByConversationIdWithPagination
 );
 
+messageRoute.post(
+  "/conversations",
+  requireAuth,
+  messageController.createOriginalConversationAndFirstMessages
+);
+
 messageRoute.post("/messages", requireAuth, messageController.createMessage);
