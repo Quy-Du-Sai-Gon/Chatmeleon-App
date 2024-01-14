@@ -6,7 +6,7 @@ const getConversationById = async (req: Request, res: Response) => {
   const { userId } = req.auth!; // Get authenticated user's ID
   const conversationId = req.params.conversationId;
 
-  const conversation = await prisma.conversation.findUniqueOrThrow({
+  const conversation = await prisma.conversation.findUnique({
     where: {
       id: conversationId,
       userIds: {
@@ -14,6 +14,13 @@ const getConversationById = async (req: Request, res: Response) => {
       },
     },
   });
+
+  if (!conversation) {
+    res
+      .status(403)
+      .type("text/plain")
+      .send("Unauthorized: User is unauthorized");
+  }
 
   res.json(conversation); // Send the retrieved conversation as JSON response
 };

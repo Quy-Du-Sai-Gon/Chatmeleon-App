@@ -7,7 +7,7 @@ const getMessagesByConversationIdWithPagination = async (
   res: Response
 ) => {
   const { userId } = req.auth!; // Get authenticated user's ID
-  const conversationId = req.query.conversationId as string;
+  const conversationId = req.params.conversationId;
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
   const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
 
