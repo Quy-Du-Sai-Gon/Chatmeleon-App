@@ -46,6 +46,7 @@ const getMessagesByConversationIdWithPagination = async (
           nextCursor, // Include the cursor for further pagination
         });
       } catch (error) {
+        // Rethrow the error to trigger the transaction rollback
         throw error;
       }
     })
@@ -135,6 +136,7 @@ const createMessage = async (req: Request, res: Response) => {
           },
           data: {
             lastMessageAt: newMessage.createdAt,
+            lastMessage: newMessage.body,
             messagesIds: { push: newMessage.id },
           },
         });
@@ -175,7 +177,7 @@ const createOriginalConversationAndFirstMessages = async (
             userIds: {
               hasEvery: [senderId, relatedUserId], // Must include both sender and recipient
             },
-            original: true, // Only consider original conversations
+            isOriginal: true, // Only consider original conversations
           },
         });
 
@@ -191,8 +193,7 @@ const createOriginalConversationAndFirstMessages = async (
         const newConversation = await tx.conversation.create({
           data: {
             userIds: [senderId, relatedUserId], // Combine sender and recipients
-            isGroup: false, // One-on-one conversation
-            original: true, // Mark as "original" conversation
+            isOriginal: true, // Mark as "original" conversation
           },
         });
 
@@ -222,12 +223,14 @@ const createOriginalConversationAndFirstMessages = async (
               push: createdMessage.id, // Add message ID to the array
             },
             lastMessageAt: createdMessage.createdAt, // Set last message timestamp
+            lastMessage: createdMessage.body,
           },
         });
 
         // All operations successful, send a success response
         return res.status(200).type("text/plain").send("OK");
       } catch (error) {
+        // Rethrow the error to trigger the transaction rollback
         throw error;
       }
     })

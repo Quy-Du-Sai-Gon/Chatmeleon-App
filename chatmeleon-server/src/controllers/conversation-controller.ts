@@ -47,6 +47,17 @@ const getConversationsByUserIdWithPagination = async (
       lastMessageAt: "asc", // Order conversations by last message time in ascending order
     },
     take: pageSize, // Limit results to the specified page size
+    select: {
+      id: true,
+      createdAt: false,
+      lastMessage: true,
+      lastMessageAt: true,
+      name: true,
+      groupAvatar: true,
+      isOriginal: true,
+      messagesIds: false,
+      userIds: false,
+    },
   });
 
   // Extract the last conversation's cursor for pagination.

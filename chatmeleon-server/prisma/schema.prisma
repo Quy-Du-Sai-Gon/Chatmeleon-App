@@ -56,13 +56,17 @@ model Account {
 
 // Define the Conversation model
 model Conversation {
-    id            String   @id @default(auto()) @map("_id") @db.ObjectId
-    createdAt     DateTime @default(now())
-    lastMessageAt DateTime @default(now())
-    name          String?
-    isGroup       Boolean?
-    original      Boolean?
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    createdAt DateTime @default(now())
+    name      String?
 
+    lastMessageAt DateTime @default(now())
+    lastMessage   String?
+
+    isOriginal  Boolean?
+    groupAvatar String?
+
+    nicknames   Json?
     // Define relationships
     messagesIds String[]  @db.ObjectId
     messages    Message[]
