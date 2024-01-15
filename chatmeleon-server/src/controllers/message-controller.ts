@@ -32,7 +32,7 @@ const getMessagesByConversationIdWithPagination = async (
             },
           },
           orderBy: {
-            createdAt: "asc", // Order messages by creation date in ascending order
+            createdAt: "desc", // Order messages by creation date in ascending order
           },
           take: pageSize, // Limit results to the specified page size
         });
@@ -79,7 +79,7 @@ const getMessagesByUserIdWithPagination = async (
       },
     },
     orderBy: {
-      createdAt: "asc",
+      createdAt: "desc",
     },
     take: pageSize, // Limit results to the specified page size
   });
@@ -135,9 +135,9 @@ const createMessage = async (req: Request, res: Response) => {
             id: conversationId,
           },
           data: {
-            lastMessageAt: newMessage.createdAt,
-            lastMessage: newMessage.body,
+            lastActive: newMessage.createdAt,
             messagesIds: { push: newMessage.id },
+            lastMessageId: newMessage.id,
           },
         });
 
@@ -177,7 +177,7 @@ const createOriginalConversationAndFirstMessages = async (
             userIds: {
               hasEvery: [senderId, relatedUserId], // Must include both sender and recipient
             },
-            isOriginal: true, // Only consider original conversations
+            isGroup: false, // Only consider original conversations
           },
         });
 
@@ -193,7 +193,7 @@ const createOriginalConversationAndFirstMessages = async (
         const newConversation = await tx.conversation.create({
           data: {
             userIds: [senderId, relatedUserId], // Combine sender and recipients
-            isOriginal: true, // Mark as "original" conversation
+            isGroup: false, // Mark as "original" conversation
           },
         });
 
@@ -222,8 +222,8 @@ const createOriginalConversationAndFirstMessages = async (
             messagesIds: {
               push: createdMessage.id, // Add message ID to the array
             },
-            lastMessageAt: createdMessage.createdAt, // Set last message timestamp
-            lastMessage: createdMessage.body,
+            lastActive: createdMessage.createdAt, // Set last message timestamp
+            lastMessageId: createdMessage.id,
           },
         });
 

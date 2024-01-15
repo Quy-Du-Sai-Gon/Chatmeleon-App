@@ -44,17 +44,16 @@ const getConversationsByUserIdWithPagination = async (
       },
     },
     orderBy: {
-      lastMessageAt: "asc", // Order conversations by last message time in ascending order
+      lastActive: "desc",
     },
     take: pageSize, // Limit results to the specified page size
     select: {
       id: true,
       createdAt: false,
-      lastMessage: true,
-      lastMessageAt: true,
+      lastMessageId: true,
       name: true,
       groupAvatar: true,
-      isOriginal: true,
+      isGroup: true,
       messagesIds: false,
       userIds: false,
     },

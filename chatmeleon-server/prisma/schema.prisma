@@ -1,94 +1,83 @@
-// Define the Prisma client
+// Define the Prisma client to generate database interaction code
 generator client {
     provider = "prisma-client-js"
 }
 
-// Define the MongoDB data source
+// Specify MongoDB as the database provider and connect to it using the DATABASE_URL environment variable
 datasource db {
     provider = "mongodb"
     url      = env("DATABASE_URL")
 }
 
-// Define the User model
+// Define the User model, representing individuals using the application
 model User {
-    id             String    @id @default(auto()) @map("_id") @db.ObjectId
-    name           String?
-    email          String?   @unique // User's email (must be unique)
-    emailVerified  DateTime?
-    image          String?
-    hashedPassword String?
-    createdAt      DateTime  @default(now())
-    updatedAt      DateTime  @updatedAt
-
-    accounts Account[]
-
-    // Define relationships
+    id               String         @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each user
+    name             String? // Optional name for the user
+    email            String?        @unique // User's email, must be unique
+    emailVerified    DateTime? // Tracks when the user's email was verified
+    image            String? // Optional image associated with the user
+    hashedPassword   String? // Securely stores the user's password hash
+    createdAt        DateTime       @default(now()) // Date and time when the user was created
+    updatedAt        DateTime       @updatedAt // Date and time when the user was last updated
+    accounts         Account[] // Accounts connected to the user (e.g., social logins)
     conversationsIds String[]       @db.ObjectId
-    conversations    Conversation[] @relation(fields: [conversationsIds], references: [id])
-
-    seenMessageIds String[]  @db.ObjectId
-    seenMessages   Message[] @relation("Seen", fields: [seenMessageIds], references: [id])
-
-    messages Message[]
+    conversations    Conversation[] @relation(fields: [conversationsIds], references: [id]) // Conversations the user is part of
+    seenMessageIds   String[]       @db.ObjectId
+    seenMessages     Message[]      @relation("Seen", fields: [seenMessageIds], references: [id]) // Messages the user has seen
+    messages         Message[] // Messages sent by the user
 }
 
-// Define the Account model
+// Define the Account model, representing external authentication accounts linked to users
 model Account {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
-
-    userId String @db.ObjectId
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    type              String // Type of account
+    id                String  @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each account
+    userId            String  @db.ObjectId // References the user owning this account
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade) // Relationship to the user
+    type              String // Type of account (e.g., "google", "facebook")
     provider          String // Authentication provider
     providerAccountId String // Identifier from the authentication provider
-    refresh_token     String? @db.String
-    access_token      String? @db.String
-    expires_at        Int?
+    refresh_token     String? @db.String // Refresh token for authentication
+    access_token      String? @db.String // Access token for authentication
+    expires_at        Int? // Expiration time for access token
     token_type        String?
     scope             String?
-    id_token          String? @db.String
+    id_token          String? @db.String // ID token from the authentication provider
     session_state     String?
 
-    // Ensure unique combinations of provider and providerAccountId
+    // Ensures unique combinations of provider and providerAccountId to prevent duplicate accounts
     @@unique([provider, providerAccountId])
 }
 
-// Define the Conversation model
+// Define the Conversation model, representing chat conversations between users
 model Conversation {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    createdAt DateTime @default(now())
-    name      String?
-
-    lastMessageAt DateTime @default(now())
-    lastMessage   String?
-
-    isOriginal  Boolean?
-    groupAvatar String?
-
-    nicknames   Json?
-    // Define relationships
-    messagesIds String[]  @db.ObjectId
-    messages    Message[]
-
-    userIds String[] @db.ObjectId
-    users   User[]   @relation(fields: [userIds], references: [id])
+    id            String     @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each conversation
+    createdAt     DateTime   @default(now()) // Date and time when the conversation was created
+    name          String? // Optional name for the conversation
+    lastActive    DateTime?
+    lastMessageId String?    @db.ObjectId // References the latest message in the conversation
+    isGroup       Boolean? // Indicates whether the conversation is a group chat
+    groupAvatar   String? // Optional avatar for group conversations
+    nicknames     Nickname[] // Nicknames for users within the conversation
+    messagesIds   String[]   @db.ObjectId
+    messages      Message[] // Messages within the conversation
+    userIds       String[]   @db.ObjectId // User IDs of participants in the conversation
+    users         User[]     @relation(fields: [userIds], references: [id]) // Relationship to the users involved
 }
 
 // Define the Message model
 model Message {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    body      String?
-    image     String?
-    createdAt DateTime @default(now())
-
-    // Define relationships
-    seenIds String[] @db.ObjectId
-    seen    User[]   @relation("Seen", fields: [seenIds], references: [id])
-
+    id             String       @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each message
+    body           String? // Optional text content of the message
+    image          String? // Optional image attached to the message
+    createdAt      DateTime     @default(now()) // Date and time when the message was sent
+    seenIds        String[]     @db.ObjectId // User IDs of users who have seen the message
+    seen           User[]       @relation("Seen", fields: [seenIds], references: [id])
     conversationId String       @db.ObjectId
     conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    senderId       String       @db.ObjectId
+    sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
 
-    senderId String @db.ObjectId
-    sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+type Nickname {
+    userId   String @db.ObjectId
+    nickname String
 }
