@@ -16,7 +16,7 @@ const getConversationById = async (req: Request, res: Response) => {
   });
 
   if (!conversation) {
-    res
+    return res
       .status(403)
       .type("text/plain")
       .send("Unauthorized: User is unauthorized");

@@ -11,53 +11,49 @@ const getMessagesByConversationIdWithPagination = async (
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
   const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
 
-  prisma
-    .$transaction(async (tx) => {
-      try {
-        // Validate conversation existence
-        await tx.conversation.findFirstOrThrow({
-          where: {
-            id: conversationId,
-            userIds: { has: userId },
-          },
-        });
+  const allMessages = await prisma.$transaction(async (tx) => {
+    try {
+      // Validate conversation existence
+      await tx.conversation.findFirstOrThrow({
+        where: {
+          id: conversationId,
+          userIds: { has: userId },
+        },
+      });
 
-        const allMessages = await tx.message.findMany({
-          where: {
-            conversation: {
-              id: conversationId, // Filter messages for the conversation
-            },
-            id: {
-              gt: cursor, // Retrieve conversations after the provided cursor (if any)
-            },
+      const allMessages = await tx.message.findMany({
+        where: {
+          conversation: {
+            id: conversationId, // Filter messages for the conversation
           },
-          orderBy: {
-            createdAt: "desc", // Order messages by creation date in ascending order
+          id: {
+            gt: cursor, // Retrieve conversations after the provided cursor (if any)
           },
-          take: pageSize, // Limit results to the specified page size
-        });
+        },
+        orderBy: {
+          createdAt: "desc", // Order messages by creation date in ascending order
+        },
+        take: pageSize, // Limit results to the specified page size
+      });
 
-        // Extract the last messages's cursor for pagination.
-        const lastMessage = allMessages[allMessages.length - 1];
-        const nextCursor = lastMessage ? lastMessage.id : null;
-
-        return res.json({
-          allMessages, // Send the fetched messages in the response
-          nextCursor, // Include the cursor for further pagination
-        });
-      } catch (error) {
-        // Rethrow the error to trigger the transaction rollback
-        throw error;
-      }
-    })
-    .catch((error) => {
-      // Log the error and send a 403 Unauthorized response
-      console.error("Transaction failed:", error);
+      return allMessages;
+    } catch (error) {
+      // Throw the error to trigger the transaction rollback
       res
         .status(403)
         .type("text/plain")
         .send("Unauthorized: User is unauthorized");
-    });
+    }
+  });
+
+  // Extract the last messages's cursor for pagination.
+  const lastMessage = allMessages ? allMessages[allMessages.length - 1] : null;
+  const nextCursor = lastMessage ? lastMessage.id : null;
+
+  return res.json({
+    allMessages, // Send the fetched messages in the response
+    nextCursor, // Include the cursor for further pagination
+  });
 };
 
 // Fetch messages for the authorized user with pagination
@@ -100,62 +96,56 @@ const createMessage = async (req: Request, res: Response) => {
   const { body, image, conversationId } = req.body;
   const { userId: senderId } = req.auth!;
 
-  prisma
-    .$transaction(async (tx) => {
-      try {
-        // Validate conversation existence
-        await tx.conversation.findFirstOrThrow({
-          where: {
-            id: conversationId,
-            userIds: { has: senderId },
-          },
-        });
+  prisma.$transaction(async (tx) => {
+    try {
+      // Validate conversation existence
+      await tx.conversation.findFirstOrThrow({
+        where: {
+          id: conversationId,
+          userIds: { has: senderId },
+        },
+      });
 
-        // Create the new message within the transaction
-        const newMessage = await tx.message.create({
-          data: {
-            body,
-            image,
-            conversation: {
-              connect: {
-                id: conversationId,
-              },
-            },
-            sender: {
-              connect: {
-                id: senderId,
-              },
+      // Create the new message within the transaction
+      const newMessage = await tx.message.create({
+        data: {
+          body,
+          image,
+          conversation: {
+            connect: {
+              id: conversationId,
             },
           },
-        });
-
-        // Update conversation with new message ID and timestamp
-        await tx.conversation.update({
-          where: {
-            id: conversationId,
+          sender: {
+            connect: {
+              id: senderId,
+            },
           },
-          data: {
-            lastActive: newMessage.createdAt,
-            messagesIds: { push: newMessage.id },
-            lastMessageId: newMessage.id,
-          },
-        });
+        },
+      });
 
-        // Send success response on successful transaction
-        return res.status(200).type("text/plain").send("OK");
-      } catch (error) {
-        // Rethrow the error to trigger the transaction rollback
-        throw error;
-      }
-    })
-    .catch((error) => {
-      // Log the error and send a 403 Unauthorized response
-      console.error("Transaction failed:", error);
+      // Update conversation with new message ID and timestamp
+      await tx.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          lastActive: newMessage.createdAt,
+          messagesIds: { push: newMessage.id },
+          lastMessageId: newMessage.id,
+        },
+      });
+
+      // Send success response on successful transaction
+      return res.status(200).type("text/plain").send("OK");
+    } catch (error) {
+      // Throw the error to trigger the transaction rollback
       res
         .status(403)
         .type("text/plain")
         .send("Unauthorized: User is unauthorized");
-    });
+    }
+  });
 };
 
 // Controller for creating a new original conversation with initial messages
@@ -168,80 +158,76 @@ const createOriginalConversationAndFirstMessages = async (
   const { userId: senderId } = req.auth!;
 
   // Utilize a Prisma transaction to ensure atomicity and data consistency
-  prisma
-    .$transaction(async (tx) => {
-      try {
-        // Check for existing original conversation between the two users
-        const existingConversation = await tx.conversation.findFirst({
-          where: {
-            userIds: {
-              hasEvery: [senderId, relatedUserId], // Must include both sender and recipient
-            },
-            isGroup: false, // Only consider original conversations
+  prisma.$transaction(async (tx) => {
+    try {
+      // Check for existing original conversation between the two users
+      const existingConversation = await tx.conversation.findFirst({
+        where: {
+          userIds: {
+            hasEvery: [senderId, relatedUserId], // Must include both sender and recipient
           },
-        });
+          isGroup: false, // Only consider original conversations
+        },
+      });
 
-        if (existingConversation) {
-          // Conversation already exists, return an error code
-          return res
-            .status(409)
-            .type("text/plain")
-            .send("Conflicted: Original conversation already existed");
-        }
-
-        // Create the conversation in the database
-        const newConversation = await tx.conversation.create({
-          data: {
-            userIds: [senderId, relatedUserId], // Combine sender and recipients
-            isGroup: false, // Mark as "original" conversation
-          },
-        });
-
-        // Create initial messages for the conversation
-        const createdMessage = await tx.message.create({
-          data: {
-            body, // Message content
-            image, // Optional image URL
-            conversation: {
-              connect: {
-                id: newConversation.id, // Link to the created conversation
-              },
-            },
-            sender: {
-              connect: {
-                id: senderId, // Associate with the sender
-              },
-            },
-          },
-        });
-
-        // Update conversation metadata
-        await tx.conversation.update({
-          where: { id: newConversation.id },
-          data: {
-            messagesIds: {
-              push: createdMessage.id, // Add message ID to the array
-            },
-            lastActive: createdMessage.createdAt, // Set last message timestamp
-            lastMessageId: createdMessage.id,
-          },
-        });
-
-        // All operations successful, send a success response
-        return res.status(200).type("text/plain").send("OK");
-      } catch (error) {
-        // Rethrow the error to trigger the transaction rollback
-        throw error;
+      if (existingConversation) {
+        // Conversation already exists, return an error code
+        return res
+          .status(409)
+          .type("text/plain")
+          .send("Conflicted: Original conversation already existed");
       }
-    })
-    .catch((error) => {
+
+      // Create the conversation in the database
+      const newConversation = await tx.conversation.create({
+        data: {
+          userIds: [senderId, relatedUserId], // Combine sender and recipients
+          isGroup: false, // Mark as "original" conversation
+        },
+      });
+
+      // Create initial messages for the conversation
+      const createdMessage = await tx.message.create({
+        data: {
+          body, // Message content
+          image, // Optional image URL
+          conversation: {
+            connect: {
+              id: newConversation.id, // Link to the created conversation
+            },
+          },
+          sender: {
+            connect: {
+              id: senderId, // Associate with the sender
+            },
+          },
+        },
+      });
+
+      // Update conversation metadata
+      await tx.conversation.update({
+        where: { id: newConversation.id },
+        data: {
+          messagesIds: {
+            push: createdMessage.id, // Add message ID to the array
+          },
+          lastActive: createdMessage.createdAt, // Set last message timestamp
+          lastMessageId: createdMessage.id,
+        },
+      });
+
+      // All operations successful, send a success response
+      return res.status(200).type("text/plain").send("OK");
+    } catch (error) {
+      // Throw the error to trigger the transaction rollback
       // Log the error and send a 403 Unauthorized response
       console.error("Transaction failed:", error);
       res
         .status(403)
         .type("text/plain")
         .send("Unauthorized: User is unauthorized");
-    });
+    }
+  });
 };
 
 export default {
