@@ -14,7 +14,6 @@ const getConversationById = async (req: Request, res: Response) => {
       },
     },
   });
-
   if (!conversation) {
     return res
       .status(403)
@@ -39,14 +38,17 @@ const getConversationsByUserIdWithPagination = async (
       userIds: {
         has: userId, // Filter conversations for the authorized user
       },
-      id: {
-        gt: cursor, // Retrieve conversations after the provided cursor (if any)
-      },
     },
     orderBy: {
       lastActive: "desc",
     },
     take: pageSize, // Limit results to the specified page size
+    ...(cursor && {
+      cursor: {
+        id: cursor,
+      },
+      skip: 1,
+    }),
     select: {
       id: true,
       createdAt: false,
@@ -59,14 +61,7 @@ const getConversationsByUserIdWithPagination = async (
     },
   });
 
-  // Extract the last conversation's cursor for pagination.
-  const lastConversation = conversations[conversations.length - 1]; // Get the last conversation for pagination
-  const nextCursor = lastConversation ? lastConversation.id : null; // Prepare the cursor for the next page
-
-  res.json({
-    conversations, // Send the fetched conversations in the response
-    nextCursor, // Include the cursor for further pagination
-  });
+  res.json(conversations); // Send the fetched conversations in the response
 };
 
 export default {
