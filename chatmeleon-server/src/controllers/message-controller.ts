@@ -52,7 +52,7 @@ const getMessagesByConversationIdWithPagination = async (
   } catch (error) {
     // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
-    console.error("Transaction failed:", error);
+    console.error("Transaction failed -", error);
 
     return res
       .status(403)
@@ -137,7 +137,7 @@ const createMessage = async (req: Request, res: Response) => {
   } catch (error) {
     // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
-    console.error("Transaction failed:", error);
+    console.error("Transaction failed -", error);
 
     return res
       .status(403)
@@ -210,7 +210,7 @@ const createOriginalConversationAndFirstMessages = async (
   } catch (error) {
     // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
-    console.error("Transaction failed:", error);
+    console.error("Transaction failed -", error);
 
     return res
       .status(403)
