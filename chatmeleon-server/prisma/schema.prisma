@@ -86,6 +86,8 @@ model User_Relationship {
     relatingUserId String       @db.ObjectId
     relatingUser   User         @relation(fields: [relatingUserId], references: [id]) // The user ID that is the owner of the relationship
     relatedUserId  String       @db.ObjectId // The ID of the other user
+
+    @@unique([relatingUserId, relatedUserId])
 }
 
 // Define a custom type to represent user nicknames within conversations
