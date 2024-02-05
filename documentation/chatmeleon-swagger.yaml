@@ -228,7 +228,60 @@ components:
           type: string
           format: date-time
           description: The timestamp when the user account was last updated.
+        conversationsIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+            description: List of conversation IDs the user is part of
+        seenMessageIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+            description: List of message IDs the user has seen
 
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "^[0-9a-f]{24}$"
+          description: MongoDB _id of the account.
+        userId:
+          type: string
+          pattern: "^[0-9a-f]{24}$"
+          description: User ID
+        type:
+          type: string
+          description: Type of account (e.g., "google", "facebook")
+        provider:
+          type: string
+          description: Authentication provider
+        providerAccountId:
+          type: string
+          description: Identifier from the authentication provider
+        refresh_token:
+          type: string
+          description: Refresh token for authentication
+        access_token:
+          type: string
+          description: Access token for authentication
+        expires_at:
+          type: integer
+          description: Expiration time for access token
+        token_type:
+          type: string
+          description: Token type
+        scope:
+          type: string
+          description: Scope of the access token
+        id_token:
+          type: string
+          description: ID token from the authentication provider
+        session_state:
+          type: string
+          description: Session state
     Message:
       type: object
       properties:
@@ -267,26 +320,77 @@ components:
         createdAt:
           type: string
           format: date-time
-          description: The timestamp when the conversation was created.
-        lastMessageAt:
-          type: string
-          format: date-time
-          description: The timestamp of the last message in the conversation.
+          description: Date and time when the conversation was created
         name:
           type: string
-          description: The name of the conversation.
+          description: Optional name for the conversation
+        lastActive:
+          type: string
+          format: date-time
+          description: Date and time of the last activity in the conversation
+        lastMessageId:
+          type: string
+          format: uuid
+          description: References the latest message in the conversation
         isGroup:
           type: boolean
-          description: Indicates whether the conversation is a group conversation or not.
-        messagesIds:
+          description: Indicates whether the conversation is a group chat
+        groupAvatar:
+          type: string
+          description: Optional avatar for group conversations
+        nicknames:
           type: array
           items:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
-          description: An array of MongoDB _ids of messages associated with this conversation.
+            $ref: "#/components/schemas/Nickname"
+          description: Nicknames for users within the conversation
         userIds:
           type: array
           items:
             type: string
-            pattern: "^[0-9a-f]{24}$"
-          description: An array of MongoDB _ids of users associated with this conversation. These user IDs can be used to reference the User model.
+            format: uuid
+            description: List of user IDs belong to the conversation
+        messageIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+            description: List of message IDs belong to the conversation
+    # User_Relationship model
+    User_Relationship:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for each relationship
+        type:
+          type: string
+          enum:
+            - FRIEND
+            - BLOCK
+            - FOLLOWING
+            - PENDING_FRIEND_REQUEST
+            - SENDING_FRIEND_REQUEST
+          description: Type of relation based on the Relationship enum
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the relationship was created
+        relatingUserId:
+          type: string
+          format: uuid
+          description: The ID of the user in the relationship
+        relatedUserId:
+          type: string
+          format: uuid
+          description: The ID of the other user in the relationship
+    Nickname:
+      type: object
+      properties:
+        userId:
+          type: string
+          pattern: "^[0-9a-f]{24}$"
+          description: MongoDB _id of the user
+        nickname:
+          type: string
+          description: Optional nickname for a user
