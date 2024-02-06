@@ -51,43 +51,64 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  allMessages:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Conversation"
-                  nextCursor:
-                    type: string
-                    pattern: "^[0-9a-f]{24}$"
-                    description: The ID of the earliest conversation of the current conversations page.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    lastMessageId:
+                      type: string
+                    name:
+                      type: string
+                    groupAvatar:
+                      type: string
+                    isGroup:
+                      type: boolean
         "401":
           description: Unauthorized - JWT token is missing or invalid.
-        "404":
-          description: Not Found - User not found or no conversations found for the specified user.
+        "403":
+          description: Unauthorized - User is unauthorized.
     post:
-      description: Create a conversation.
+      description: Create the first non-group conversation with the first message
       tags:
         - conversations
-      summary: Create a conversation.
+      summary: Create the first non-group conversation
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: Conversation created successfully.
+          description: A conversations with the first message related to the user.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Conversation"
+                type: object
+                properties:
+                  conversation:
+                    $ref: "#/components/schemas/Conversation"
+                  messages:
+                    $ref: "#/components/schemas/Message"
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Unauthorized - User is unauthorized.
       requestBody:
-        description: Conversation data to create.
+        description: Message data to create.
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Conversation"
+              type: object
+              properties:
+                relatedUserId:
+                  type: string
+                  pattern: "^[0-9a-f]{24}$"
+                body:
+                  type: string
+                image:
+                  type: string
   /conversations/{conversationId}:
     get:
-      description: Retrieve a conversation by its ID.
+      description: Retrieve a conversation infomation by its ID.
       tags:
         - conversations
       summary: Get a conversation
@@ -113,9 +134,8 @@ paths:
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
-          description: Forbidden - User not allowed to retrieve the conversation.
-        "404":
-          description: Not Found - Conversation not found.
+          description: Unauthorized - User is unauthorized.
+
   /conversations/{conversationId}/messages:
     get:
       description: Retrieve a page of messages of a conversation identified by the conversation's ID with the support of cursor-based pagination.
@@ -151,22 +171,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  allMessages:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Message"
-                  nextCursor:
-                    type: string
-                    pattern: "^[0-9a-f]{24}$"
-                    description: The ID of the earliest message of the current messages page.
+                type: array
+                items:
+                  type: object
+                  $ref: "#/components/schemas/Message"
+
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
-          description: Forbidden - User not allowed to retrieve the messages of the conversation.
-        "404":
-          description: Not Found - Conversation not found.
+          description: Unauthorized - User is unauthorized.
   /messages:
     post:
       description: Create a new message.
@@ -182,12 +195,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Unauthorized - User is unauthorized.
+
       requestBody:
         description: Message data to create.
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Message"
+              type: object
+              properties:
+                body:
+                  type: string
+                image:
+                  type: string
+                conversationId:
+                  type: string
+                  pattern: "^[0-9a-f]{24}$"
+  /user/messages:
+    get:
+      description: Retrieve all messages of the current user
+      tags:
+        - messages
+      summary: Get all messages of a user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: All messages' information.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  $ref: "#/components/schemas/Message"
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Unauthorized - User is unauthorized.
+
 components:
   securitySchemes:
     bearerAuth:
@@ -301,6 +350,11 @@ components:
           type: string
           format: date-time
           description: The timestamp when the message was created.
+        seenIds:
+          type: array
+          items:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
         conversationId:
           type: string
           pattern: "^[0-9a-f]{24}$"
@@ -308,7 +362,6 @@ components:
         senderId:
           type: string
           pattern: "^[0-9a-f]{24}$"
-          description: MongoDB _id of the sender.
 
     Conversation:
       type: object
@@ -355,6 +408,7 @@ components:
             type: string
             format: uuid
             description: List of message IDs belong to the conversation
+
     # User_Relationship model
     User_Relationship:
       type: object
