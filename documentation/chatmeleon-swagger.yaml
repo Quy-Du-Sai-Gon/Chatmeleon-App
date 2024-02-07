@@ -78,16 +78,18 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: A conversations with the first message related to the user.
+          description: A conversations ID with the first message ID related to the user.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  conversation:
-                    $ref: "#/components/schemas/Conversation"
-                  messages:
-                    $ref: "#/components/schemas/Message"
+                  conversationId:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
+                  messagesId:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -194,7 +196,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Message"
+                type: object
+                properties:
+                  messageId:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -214,6 +220,35 @@ paths:
                 conversationId:
                   type: string
                   pattern: "^[0-9a-f]{24}$"
+  /messages/{messagesId}:
+    get:
+      description: Retrieve a message infomation by its ID.
+      tags:
+        - messages
+      summary: Get a message
+      parameters:
+        - name: messagesId
+          in: path
+          description: The unique message ID.
+          required: true
+          schema:
+            type: string
+          example: "fdf919880bcde1e42cb3e588"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: A message record.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+        "401":
+          description: Unauthorized - JWT token is missing or invalid.
+        "403":
+          description: Unauthorized - User is unauthorized.
   /user/messages:
     get:
       description: Retrieve all messages of the current user  with the support of cursor-based pagination. The page will be an array containing the newest messages to the oldest messgaes from the cursor. For example [mess1, mess2, mess3, mess4, mess5] with mess1 being the most recently sent message and mess5 being the oldest message.
