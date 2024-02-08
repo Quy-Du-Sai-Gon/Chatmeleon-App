@@ -215,8 +215,15 @@ const deleteFriendRequestRelationship = async (req: Request, res: Response) => {
   res.status(200).type("text/plain").send("OK");
 };
 
+// TO-DO for Khoa
+const getFriendsByNameWithPagination = async (
+  req: Request,
+  res: Response
+) => {};
+
 export default {
   createFriendRequestRelationship,
   createFriendRelationship,
   deleteFriendRequestRelationship,
+  getFriendsByNameWithPagination,
 };
