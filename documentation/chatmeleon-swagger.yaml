@@ -376,12 +376,6 @@ components:
             type: string
             format: uuid
             description: List of user IDs belong to the conversation
-        messageIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-            description: List of message IDs belong to the conversation
 
     # User_Relationship model
     User_Relationship:
