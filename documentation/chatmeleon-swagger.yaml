@@ -369,13 +369,21 @@ paths:
                 items:
                   type: object
                   properties:
-                    id:
+                    userId:
                       type: string
                       pattern: "^[0-9a-f]{24}$"
                     name:
                       type: string
                     image:
                       type: string
+                    relationshipType:
+                      type: string
+                      enum:
+                        - FRIEND
+                        - BLOCK
+                        - FOLLOWING
+                        - PENDING_FRIEND_REQUEST
+                        - SENDING_FRIEND_REQUEST
                     originalConversationId:
                       type: string
                       pattern: "^[0-9a-f]{24}$"
@@ -422,7 +430,7 @@ paths:
                 items:
                   type: object
                   properties:
-                    id:
+                    userId:
                       type: string
                       pattern: "^[0-9a-f]{24}$"
                     name:
