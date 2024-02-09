@@ -100,6 +100,6 @@ type Nickname {
 enum Relationship {
     FRIEND // Two users are friends
     BLOCK // A user has blocked another user
-    PENDING_FRIEND_REQUEST // A user has sent a friend request that hasn't been accepted yet
+    PENDING_FRIEND_REQUEST // A user has received a friend request that hasn't been accepted yet
     SENDING_FRIEND_REQUEST // A user has sent a friend request and is awaiting a response
 }
