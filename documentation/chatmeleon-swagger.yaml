@@ -222,34 +222,6 @@ paths:
                 conversationId:
                   type: string
                   pattern: "^[0-9a-f]{24}$"
-  /messages/{messagesId}:
-    get:
-      description: Retrieve a message infomation by its ID.
-      tags:
-        - messages
-      summary: Get a message
-      parameters:
-        - name: messagesId
-          in: path
-          description: The unique message ID.
-          required: true
-          schema:
-            type: string
-          example: "fdf919880bcde1e42cb3e588"
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: A message record.
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: "#/components/schemas/Message"
-        "401":
-          description: Unauthorized - JWT token is missing or invalid.
-        "403":
-          description: Unauthorized - User is unauthorized.
 
 components:
   securitySchemes:
