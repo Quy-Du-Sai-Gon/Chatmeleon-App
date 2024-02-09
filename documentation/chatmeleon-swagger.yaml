@@ -32,13 +32,13 @@ paths:
       parameters:
         - name: pageSize
           in: query
-          description: The number of conversation in one page. When this query is empty, a default value of 10 will be used. A positive pageSize will return pageSize number of conversation that is more recent than the cursor, for example [cursor = convo4.id; pageSize = 2] will return [convo2, convo3] not [convo3, convo2] because of the order mentioned above. A negative pageSize will do the opposite, [cursor = convo2.id; pageSize = -2] will return [convo3, convo4].
+          description: The number of conversation in one page. When this query is empty, a default value of 10 will be used. A positive pageSize will return pageSize number of conversation that is older than the cursor, for example [cursor = convo2.id; pageSize = 2] will return [convo3, convo4]. A negative pageSize will do the opposite, [cursor = convo4.id; pageSize = -2] will return [convo2, convo3].
           schema:
             type: integer
             default: 10
         - name: cursor
           in: query
-          description: The ID of the earliest converation of the last messages page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently active pageSize number of conversation [not from any cursor but from the whole records of conversation]. A negative pageSize will do the opposite, returning the oldest active pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [convo1, convo2], [cursor = null; pageSize = -3] will return [convo3, convo4, convo5].
+          description: The ID of the conversation, adjacent to which a page of other conversations will be retrieved. This can be used in pagination to get the next conversation page, using the id of the last item of a previously retrieved page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently active pageSize number of conversation. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [convo1, convo2], [cursor = null; pageSize = -3] will return [convo3, convo4, convo5].
           schema:
             type: string
             pattern: "^[0-9a-f]{24}$"
@@ -57,10 +57,8 @@ paths:
                   properties:
                     id:
                       type: string
-                      pattern: "^[0-9a-f]{24}$"
                     lastMessageId:
                       type: string
-                      pattern: "^[0-9a-f]{24}$"
                     name:
                       type: string
                     groupAvatar:
@@ -92,6 +90,9 @@ paths:
                   messagesId:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
+                  createdAt:
+                    type: string
+                    format: date-time
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -132,9 +133,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Conversation"
+                type: object
+                $ref: "#/components/schemas/Conversation"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -156,13 +156,13 @@ paths:
           example: "fdf919880bcde1e42cb3e588"
         - name: pageSize
           in: query
-          description: The number of messages in one page. When this query is empty, a default value of 10 will be used. A positive pageSize will return a pageSize number of message that is more recent than the cursor, for example [cursor = mess4.id; pageSize = 2] will return [mess2, mess3] not [mess3, mess2] because of the order mentioned above. A negative pageSize will do the opposite, [cursor = mess2.id; pageSize = -2] will return [mess3, mess4].
+          description: The number of messages in one page. When this query is empty, a default value of 10 will be used. A positive pageSize will return a pageSize number of message that is older than the cursor, for example [cursor = mess2.id; pageSize = 2] will return [mess3, mess4]. A negative pageSize will do the opposite, [cursor = mess4.id; pageSize = -2] will return [mess2, mess3].
           schema:
             type: integer
             default: 10
         - name: cursor
           in: query
-          description: The ID of the earliest message of the last messages page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently sent pageSize number of messages [not from any cursor but from the whole records of conversation]. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [mess1, mess2], [cursor = null; pageSize = -3] will return [mess3, mess4, mess5].
+          description: The ID of the message, adjacent to which a page of other messages will be retrieved. This can be used in pagination to get the next message page, using the id of the last item of a previously retrieved page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently sent pageSize number of messages. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [mess1, mess2], [cursor = null; pageSize = -3] will return [mess3, mess4, mess5].
           schema:
             type: string
             pattern: "^[0-9a-f]{24}$"
@@ -244,46 +244,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Message"
-        "401":
-          description: Unauthorized - JWT token is missing or invalid.
-        "403":
-          description: Unauthorized - User is unauthorized.
-
-  /user/messages:
-    get:
-      description: Retrieve all messages of the current user  with the support of cursor-based pagination. The page will be an array containing the newest messages to the oldest messgaes from the cursor. For example [mess1, mess2, mess3, mess4, mess5] with mess1 being the most recently sent message and mess5 being the oldest message.
-      tags:
-        - messages
-      summary: Get all messages of a user
-      parameters:
-        - name: pageSize
-          in: query
-          description: The number of messages in one page. When this query is empty, a default value of 10 will be used. A positive pageSize will return a pageSize number of message that is more recent than the cursor, for example [cursor = mess4.id; pageSize = 2] will return [mess2, mess3] not [mess3, mess2] because of the order mentioned above. A negative pageSize will do the opposite, [cursor = mess2.id; pageSize = -2] will return [mess3, mess4].
-          schema:
-            type: integer
-            default: 10
-        - name: cursor
-          in: query
-          description: The ID of the earliest message of the last messages page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently sent pageSize number of messages [not from any cursor but from the whole records of conversation]. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [mess1, mess2], [cursor = null; pageSize = -3] will return [mess3, mess4, mess5].
-          schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
-            default: null
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: All messages' information.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  $ref: "#/components/schemas/Message"
+                type: object
+                $ref: "#/components/schemas/Message"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
