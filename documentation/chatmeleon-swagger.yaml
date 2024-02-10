@@ -124,6 +124,7 @@ paths:
           required: true
           schema:
             type: string
+            pattern: "^[0-9a-f]{24}$"
           example: "fdf919880bcde1e42cb3e588"
       security:
         - bearerAuth: []
@@ -153,6 +154,7 @@ paths:
           required: true
           schema:
             type: string
+            pattern: "^[0-9a-f]{24}$"
           example: "fdf919880bcde1e42cb3e588"
         - name: pageSize
           in: query
@@ -184,12 +186,20 @@ paths:
           description: Unauthorized - JWT token is missing or invalid.
         "403":
           description: Unauthorized - User is unauthorized.
-  /messages:
     post:
       description: Create a new message.
       tags:
         - messages
       summary: Create a message
+      parameters:
+        - name: conversationId
+          in: path
+          description: The unique conversation ID.
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
+          example: "fdf919880bcde1e42cb3e588"
       security:
         - bearerAuth: []
       responses:
@@ -203,6 +213,9 @@ paths:
                   messageId:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
+                  createdAt:
+                    type: string
+                    format: date-time
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -219,9 +232,6 @@ paths:
                   type: string
                 image:
                   type: string
-                conversationId:
-                  type: string
-                  pattern: "^[0-9a-f]{24}$"
 
 components:
   securitySchemes:
