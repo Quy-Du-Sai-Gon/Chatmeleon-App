@@ -61,43 +61,14 @@ const getMessagesByConversationIdWithPagination = async (
   }
 };
 
-// Fetch messages for the authorized user with pagination
-const getMessagesByUserIdWithPagination = async (
-  req: Request,
-  res: Response
-) => {
-  const { userId } = req.auth!; // Get authenticated user's ID
-  const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
-  const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
-
-  const messages = await prisma.message.findMany({
-    where: {
-      sender: {
-        id: userId, // Filter messages sent by the authenticated user
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: pageSize, // Limit results to the specified page size
-    ...(cursor && {
-      cursor: {
-        id: cursor,
-      },
-      skip: 1,
-    }),
-  });
-
-  res.json(messages); // Send the fetched messages in the response
-};
-
 // Function to create a new message
 const createMessage = async (req: Request, res: Response) => {
   // Extract data from request body and authentication
-  const { body, image, conversationId } = req.body;
+  const conversationId = req.params.conversationId;
+  const { body, image } = req.body;
   const { userId: senderId } = req.auth!;
   try {
-    await prisma.$transaction(async (tx) => {
+    const messageInfo = await prisma.$transaction(async (tx) => {
       // Validate conversation existence
       await tx.conversation.findFirstOrThrow({
         where: {
@@ -133,7 +104,15 @@ const createMessage = async (req: Request, res: Response) => {
           lastMessageId: newMessage.id,
         },
       });
+      // Return appropriate data
+      const messageInfo = {
+        messageId: newMessage.id,
+        createdAt: newMessage.createdAt,
+      };
+      return messageInfo;
     });
+
+    return res.json(messageInfo);
   } catch (error) {
     // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
@@ -144,8 +123,6 @@ const createMessage = async (req: Request, res: Response) => {
       .type("text/plain")
       .send("Unauthorized: User is unauthorized");
   }
-  // Send success response on successful transaction
-  res.status(200).type("text/plain").send("OK");
 };
 
 // Controller for creating a new original conversation with initial messages
@@ -223,7 +200,6 @@ const createOriginalConversationAndFirstMessages = async (
 
 export default {
   getMessagesByConversationIdWithPagination,
-  getMessagesByUserIdWithPagination,
   createOriginalConversationAndFirstMessages,
   createMessage,
 };
