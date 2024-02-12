@@ -11,12 +11,6 @@ messageRoute.get(
 );
 
 messageRoute.post(
-  "/conversations",
-  requireAuth,
-  messageController.createOriginalConversationAndFirstMessages
-);
-
-messageRoute.post(
   "/conversations/:conversationId/messages",
   requireAuth,
   messageController.createMessage

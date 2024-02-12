@@ -15,3 +15,9 @@ conversationRoute.get(
   requireAuth,
   conversationControler.getConversationsByUserIdWithPagination
 );
+
+conversationRoute.post(
+  "/conversations",
+  requireAuth,
+  conversationControler.createOriginalConversationAndFirstMessages
+);
