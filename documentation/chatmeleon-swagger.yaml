@@ -87,7 +87,7 @@ paths:
                   conversationId:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
-                  messagesId:
+                  messageId:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                   createdAt:
@@ -135,7 +135,31 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/Conversation"
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                  name:
+                    type: string
+                  lastActive:
+                    type: string
+                    format: date-time
+                  lastMessageId:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
+                  isGroup:
+                    type: boolean
+                  groupAvatar:
+                    type: string
+                  nicknames:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Nickname"
+                  userIds:
+                    type: array
+                    items:
+                      type: string
+                      pattern: "^[0-9a-f]{24}$"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -180,8 +204,25 @@ paths:
                 type: array
                 items:
                   type: object
-                  $ref: "#/components/schemas/Message"
-
+                  properties:
+                    id:
+                      type: string
+                      pattern: "^[0-9a-f]{24}$"
+                    body:
+                      type: string
+                    image:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    seenIds:
+                      type: array
+                      items:
+                        type: string
+                        pattern: "^[0-9a-f]{24}$"
+                    senderId:
+                      type: string
+                      pattern: "^[0-9a-f]{24}$"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":

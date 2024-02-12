@@ -13,6 +13,17 @@ const getConversationById = async (req: Request, res: Response) => {
         has: userId, // Check if authorized user is part of the conversation
       },
     },
+    select: {
+      id: false,
+      createdAt: true,
+      name: true,
+      lastActive: true,
+      lastMessageId: true,
+      isGroup: true,
+      groupAvatar: true,
+      nicknames: true,
+      userIds: true,
+    },
   });
   if (!conversation) {
     return res

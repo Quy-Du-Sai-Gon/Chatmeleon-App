@@ -34,20 +34,19 @@ const getMessagesByConversationIdWithPagination = async (
             id: cursor,
           },
           skip: 1,
-          select: {
-            id: true,
-            body: true,
-            image: true,
-            createdAt: true,
-            seenIds: true,
-            senderId: true,
-            conversationId: false,
-          },
         }),
+        select: {
+          id: true,
+          body: true,
+          image: true,
+          createdAt: true,
+          seenIds: true,
+          conversationId: false,
+          senderId: true,
+        },
       });
       return allMessages;
     });
-
     return res.json(allMessages); // Send the fetched messages in the response
   } catch (error) {
     // Throw the error to trigger the transaction rollback
