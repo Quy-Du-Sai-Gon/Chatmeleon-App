@@ -87,7 +87,7 @@ paths:
                   conversationId:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
-                  messagesId:
+                  messageId:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
                   createdAt:
@@ -124,6 +124,7 @@ paths:
           required: true
           schema:
             type: string
+            pattern: "^[0-9a-f]{24}$"
           example: "fdf919880bcde1e42cb3e588"
       security:
         - bearerAuth: []
@@ -134,7 +135,31 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/Conversation"
+                properties:
+                  createdAt:
+                    type: string
+                    format: date-time
+                  name:
+                    type: string
+                  lastActive:
+                    type: string
+                    format: date-time
+                  lastMessageId:
+                    type: string
+                    pattern: "^[0-9a-f]{24}$"
+                  isGroup:
+                    type: boolean
+                  groupAvatar:
+                    type: string
+                  nicknames:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Nickname"
+                  userIds:
+                    type: array
+                    items:
+                      type: string
+                      pattern: "^[0-9a-f]{24}$"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -153,6 +178,7 @@ paths:
           required: true
           schema:
             type: string
+            pattern: "^[0-9a-f]{24}$"
           example: "fdf919880bcde1e42cb3e588"
         - name: pageSize
           in: query
@@ -178,18 +204,43 @@ paths:
                 type: array
                 items:
                   type: object
-                  $ref: "#/components/schemas/Message"
-
+                  properties:
+                    id:
+                      type: string
+                      pattern: "^[0-9a-f]{24}$"
+                    body:
+                      type: string
+                    image:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    seenIds:
+                      type: array
+                      items:
+                        type: string
+                        pattern: "^[0-9a-f]{24}$"
+                    senderId:
+                      type: string
+                      pattern: "^[0-9a-f]{24}$"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
           description: Unauthorized - User is unauthorized.
-  /messages:
     post:
       description: Create a new message.
       tags:
         - messages
       summary: Create a message
+      parameters:
+        - name: conversationId
+          in: path
+          description: The unique conversation ID.
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{24}$"
+          example: "fdf919880bcde1e42cb3e588"
       security:
         - bearerAuth: []
       responses:
@@ -203,6 +254,9 @@ paths:
                   messageId:
                     type: string
                     pattern: "^[0-9a-f]{24}$"
+                  createdAt:
+                    type: string
+                    format: date-time
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -219,38 +273,6 @@ paths:
                   type: string
                 image:
                   type: string
-                conversationId:
-                  type: string
-                  pattern: "^[0-9a-f]{24}$"
-  /messages/{messagesId}:
-    get:
-      description: Retrieve a message infomation by its ID.
-      tags:
-        - messages
-      summary: Get a message
-      parameters:
-        - name: messagesId
-          in: path
-          description: The unique message ID.
-          required: true
-          schema:
-            type: string
-          example: "fdf919880bcde1e42cb3e588"
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: A message record.
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: "#/components/schemas/Message"
-        "401":
-          description: Unauthorized - JWT token is missing or invalid.
-        "403":
-          description: Unauthorized - User is unauthorized.
-
   /friend/send:
     post:
       description: Create a friend sending and pending relationship between two users.
@@ -571,6 +593,7 @@ components:
           items:
             type: string
             pattern: "^[0-9a-f]{24}$"
+            description: An array of user IDs that has seen the message
         conversationId:
           type: string
           pattern: "^[0-9a-f]{24}$"
@@ -618,12 +641,6 @@ components:
             type: string
             format: uuid
             description: List of user IDs belong to the conversation
-        messageIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-            description: List of message IDs belong to the conversation
 
     # User_Relationship model
     User_Relationship:
