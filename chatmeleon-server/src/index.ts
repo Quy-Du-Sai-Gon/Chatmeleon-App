@@ -18,6 +18,7 @@ import { messageRoute } from "./routes/message-route";
 import { conversationRoute } from "./routes/conversation-route";
 import { userRoute } from "./routes/user-route";
 import { userRelationshipRoute } from "./routes/user-relationship-route";
+import { friendRoute } from "./routes/friend-route";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use(messageRoute);
 app.use(conversationRoute);
 app.use(userRoute);
 app.use(userRelationshipRoute);
+app.use(friendRoute);
 
 app.use(errorMiddleware);
 
