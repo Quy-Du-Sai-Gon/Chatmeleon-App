@@ -20,10 +20,12 @@ const getFriendsWithPagination = async (req: Request, res: Response) => {
       });
 
       const promises = relationships.map(async (relationship) => {
-        const friendData = await tx.user.findUnique({
+        const friendData = await tx.user.findFirst({
           where: {
             id: relationship.relatedUserId,
-            name: name,
+            name: {
+              contains: name,
+            },
           },
           select: {
             id: true,
@@ -55,13 +57,11 @@ const getFriendsWithPagination = async (req: Request, res: Response) => {
       });
 
       const paginatedResults = await Promise.all(promises);
+      const filteredResults = paginatedResults.filter(Boolean);
       const cursorIndex = cursor
-        ? paginatedResults.findIndex((obj) => obj?.userId === cursor)
+        ? filteredResults.findIndex((obj) => obj?.userId === cursor)
         : -1;
-      return paginatedResults.slice(
-        cursorIndex + 1,
-        cursorIndex + 1 + pageSize
-      );
+      return filteredResults.slice(cursorIndex + 1, cursorIndex + 1 + pageSize);
     });
     return res.json(results);
   } catch (error) {
