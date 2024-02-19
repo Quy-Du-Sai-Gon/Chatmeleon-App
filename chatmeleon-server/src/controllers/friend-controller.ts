@@ -6,6 +6,7 @@ const getFriendsWithPagination = async (req: Request, res: Response) => {
   const name = req.query.name as string | "";
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
   const cursor = req.query.cursor as string | undefined;
+
   try {
     const results = await prisma.$transaction(async (tx) => {
       const relationships = await tx.user_Relationship.findMany({
@@ -22,6 +23,7 @@ const getFriendsWithPagination = async (req: Request, res: Response) => {
         const friendData = await tx.user.findUnique({
           where: {
             id: relationship.relatedUserId,
+            name: name,
           },
           select: {
             id: true,
@@ -29,28 +31,37 @@ const getFriendsWithPagination = async (req: Request, res: Response) => {
             image: true,
           },
         });
-        const originalConversationId = await tx.conversation.findFirst({
-          where: {
-            AND: [
-              { isGroup: false },
-              { userIds: { hasEvery: [relationship.relatedUserId, userId] } },
-            ],
-          },
-          select: {
-            id: true,
-          },
-        });
-        const outData = {
-          userId: friendData?.id,
-          name: friendData?.name,
-          image: friendData?.image,
-          relationshipType: relationship.type,
-          originalConversationId: originalConversationId?.id,
-        };
-        return outData;
+        if (friendData) {
+          const originalConversationId = await tx.conversation.findFirst({
+            where: {
+              AND: [
+                { isGroup: false },
+                { userIds: { hasEvery: [relationship.relatedUserId, userId] } },
+              ],
+            },
+            select: {
+              id: true,
+            },
+          });
+          const outData = {
+            userId: friendData?.id,
+            name: friendData?.name,
+            image: friendData?.image,
+            relationshipType: relationship.type,
+            originalConversationId: originalConversationId?.id,
+          };
+          return outData;
+        }
       });
-      const results = await Promise.all(promises);
-      return results;
+
+      const paginatedResults = await Promise.all(promises);
+      const cursorIndex = cursor
+        ? paginatedResults.findIndex((obj) => obj?.userId === cursor)
+        : -1;
+      return paginatedResults.slice(
+        cursorIndex + 1,
+        cursorIndex + 1 + pageSize
+      );
     });
     return res.json(results);
   } catch (error) {
