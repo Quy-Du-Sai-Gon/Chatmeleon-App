@@ -1,45 +1,8 @@
-import prisma from "../libs/prismadb";
 import { Request, Response } from "express";
-
-// Retrieve a specific conversation by ID, ensuring user authorization
-const getConversationById = async (req: Request, res: Response) => {
-  const { userId } = req.auth!; // Get authenticated user's ID
-  const conversationId = req.params.conversationId;
-
-  const conversation = await prisma.conversation.findUnique({
-    where: {
-      id: conversationId,
-      userIds: {
-        has: userId, // Check if authorized user is part of the conversation
-      },
-    },
-    select: {
-      id: false,
-      createdAt: true,
-      name: true,
-      lastActive: true,
-      lastMessageId: true,
-      isGroup: true,
-      groupAvatar: true,
-      nicknames: true,
-      userIds: true,
-    },
-  });
-  if (!conversation) {
-    return res
-      .status(403)
-      .type("text/plain")
-      .send("Unauthorized: User is unauthorized");
-  }
-
-  res.json(conversation); // Send the retrieved conversation as JSON response
-};
+import prisma from "../../libs/prismadb";
 
 // Fetch conversations for the authorized user with pagination
-const getConversationsByUserIdWithPagination = async (
-  req: Request,
-  res: Response
-) => {
+const get = async (req: Request, res: Response) => {
   const { userId } = req.auth!; // Get authenticated user's ID
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
   const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
@@ -75,14 +38,12 @@ const getConversationsByUserIdWithPagination = async (
   res.json(conversations); // Send the fetched conversations in the response
 };
 
-// Controller for creating a new original conversation with initial messages
-const createOriginalConversationAndFirstMessages = async (
-  req: Request,
-  res: Response
-) => {
+// Handler for creating a new original conversation with initial messages
+const post = async (req: Request, res: Response) => {
   // Extract data from request body and authentication
   const { relatedUserId, body, image } = req.body;
   const { userId: senderId } = req.auth!;
+
   // Utilize a Prisma transaction to ensure atomicity and data consistency
   try {
     const conversationAndMessageInfo = await prisma.$transaction(async (tx) => {
@@ -153,8 +114,6 @@ const createOriginalConversationAndFirstMessages = async (
   }
 };
 
-export default {
-  getConversationById,
-  getConversationsByUserIdWithPagination,
-  createOriginalConversationAndFirstMessages,
-};
+const conversations = { get, post };
+
+export default conversations;
