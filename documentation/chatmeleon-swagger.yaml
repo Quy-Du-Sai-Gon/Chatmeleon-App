@@ -62,6 +62,7 @@ paths:
                       type: string
                     groupAvatar:
                       type: string
+                      format: uri
                     isGroup:
                       type: boolean
         "400":
@@ -109,6 +110,7 @@ paths:
                   type: string
                 image:
                   type: string
+                  format: uri
   /conversations/{conversationId}:
     get:
       description: Retrieve a conversation infomation by its ID.
@@ -147,6 +149,7 @@ paths:
                     type: boolean
                   groupAvatar:
                     type: string
+                    format: uri
                   nicknames:
                     type: array
                     items:
@@ -204,6 +207,7 @@ paths:
                       type: string
                     image:
                       type: string
+                      format: uri
                     createdAt:
                       type: string
                       format: date-time
@@ -261,6 +265,7 @@ paths:
                   type: string
                 image:
                   type: string
+                  format: uri
 
 components:
   securitySchemes:
@@ -292,6 +297,7 @@ components:
           description: The timestamp when the email address was verified.
         image:
           type: string
+          format: uri
           description: URL to the user's profile image.
         hashedPassword:
           type: string
@@ -327,6 +333,7 @@ components:
           description: The content of the message.
         image:
           type: string
+          format: uri
           example: "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U"
           description: URL to an image associated with the message.
         createdAt:
@@ -369,6 +376,7 @@ components:
           description: Indicates whether the conversation is a group chat
         groupAvatar:
           type: string
+          format: uri
           description: Optional avatar for group conversations
         nicknames:
           type: array
