@@ -40,8 +40,7 @@ paths:
           in: query
           description: The ID of the conversation, adjacent to which a page of other conversations will be retrieved. This can be used in pagination to get the next conversation page, using the id of the last item of a previously retrieved page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently active pageSize number of conversation. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [convo1, convo2], [cursor = null; pageSize = -3] will return [convo3, convo4, convo5]. An invalid ObjectId string will result in a 400 Bad Request response.
           schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            $ref: "#/components/schemas/ObjectId"
             default: null
       security:
         - bearerAuth: []
@@ -56,9 +55,9 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: string
+                      $ref: "#/components/schemas/ObjectId"
                     lastMessageId:
-                      type: string
+                      $ref: "#/components/schemas/ObjectId"
                     name:
                       type: string
                     groupAvatar:
@@ -87,11 +86,9 @@ paths:
                 type: object
                 properties:
                   conversationId:
-                    type: string
-                    pattern: "^[0-9a-f]{24}$"
+                    $ref: "#/components/schemas/ObjectId"
                   messageId:
-                    type: string
-                    pattern: "^[0-9a-f]{24}$"
+                    $ref: "#/components/schemas/ObjectId"
                   createdAt:
                     type: string
                     format: date-time
@@ -107,8 +104,7 @@ paths:
               type: object
               properties:
                 relatedUserId:
-                  type: string
-                  pattern: "^[0-9a-f]{24}$"
+                  $ref: "#/components/schemas/ObjectId"
                 body:
                   type: string
                 image:
@@ -125,8 +121,7 @@ paths:
           description: The unique conversation ID.
           required: true
           schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            $ref: "#/components/schemas/ObjectId"
           example: "fdf919880bcde1e42cb3e588"
       security:
         - bearerAuth: []
@@ -147,8 +142,7 @@ paths:
                     type: string
                     format: date-time
                   lastMessageId:
-                    type: string
-                    pattern: "^[0-9a-f]{24}$"
+                    $ref: "#/components/schemas/ObjectId"
                   isGroup:
                     type: boolean
                   groupAvatar:
@@ -160,8 +154,7 @@ paths:
                   userIds:
                     type: array
                     items:
-                      type: string
-                      pattern: "^[0-9a-f]{24}$"
+                      $ref: "#/components/schemas/ObjectId"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -179,8 +172,7 @@ paths:
           description: The unique conversation ID.
           required: true
           schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            $ref: "#/components/schemas/ObjectId"
           example: "fdf919880bcde1e42cb3e588"
         - name: pageSize
           in: query
@@ -192,8 +184,7 @@ paths:
           in: query
           description: The ID of the message, adjacent to which a page of other messages will be retrieved. This can be used in pagination to get the next message page, using the id of the last item of a previously retrieved page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently sent pageSize number of messages. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [mess1, mess2], [cursor = null; pageSize = -3] will return [mess3, mess4, mess5].
           schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            $ref: "#/components/schemas/ObjectId"
             default: null
       security:
         - bearerAuth: []
@@ -208,8 +199,7 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: string
-                      pattern: "^[0-9a-f]{24}$"
+                      $ref: "#/components/schemas/ObjectId"
                     body:
                       type: string
                     image:
@@ -220,11 +210,9 @@ paths:
                     seenIds:
                       type: array
                       items:
-                        type: string
-                        pattern: "^[0-9a-f]{24}$"
+                        $ref: "#/components/schemas/ObjectId"
                     senderId:
-                      type: string
-                      pattern: "^[0-9a-f]{24}$"
+                      $ref: "#/components/schemas/ObjectId"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -240,8 +228,7 @@ paths:
           description: The unique conversation ID.
           required: true
           schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            $ref: "#/components/schemas/ObjectId"
           example: "fdf919880bcde1e42cb3e588"
       security:
         - bearerAuth: []
@@ -254,8 +241,7 @@ paths:
                 type: object
                 properties:
                   messageId:
-                    type: string
-                    pattern: "^[0-9a-f]{24}$"
+                    $ref: "#/components/schemas/ObjectId"
                   createdAt:
                     type: string
                     format: date-time
@@ -284,12 +270,14 @@ components:
       bearerFormat: JWT
       description: Bearer token for authentication. Use the format "Bearer YOUR_JWT_TOKEN". The JWT token is signed with HS256 using a secret key.
   schemas:
+    ObjectId:
+      type: string
+      pattern: "^[0-9a-fA-F]{24}$"
     User:
       type: object
       properties:
         id:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
+          $ref: "#/components/schemas/ObjectId"
           description: MongoDB _id of the user.
         name:
           type: string
@@ -319,22 +307,19 @@ components:
         conversationsIds:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/ObjectId"
             description: List of conversation IDs the user is part of
         seenMessageIds:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/ObjectId"
             description: List of message IDs the user has seen
 
     Message:
       type: object
       properties:
         id:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
+          $ref: "#/components/schemas/ObjectId"
           description: MongoDB _id of the message.
         body:
           type: string
@@ -351,23 +336,19 @@ components:
         seenIds:
           type: array
           items:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            $ref: "#/components/schemas/ObjectId"
             description: An array of user IDs that has seen the message
         conversationId:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
+          $ref: "#/components/schemas/ObjectId"
           description: MongoDB _id of the associated conversation.
         senderId:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
+          $ref: "#/components/schemas/ObjectId"
 
     Conversation:
       type: object
       properties:
         id:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
+          $ref: "#/components/schemas/ObjectId"
           description: MongoDB _id of the conversation.
         createdAt:
           type: string
@@ -381,8 +362,7 @@ components:
           format: date-time
           description: Date and time of the last activity in the conversation
         lastMessageId:
-          type: string
-          format: uuid
+          $ref: "#/components/schemas/ObjectId"
           description: References the latest message in the conversation
         isGroup:
           type: boolean
@@ -398,8 +378,7 @@ components:
         userIds:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/ObjectId"
             description: List of user IDs belong to the conversation
 
     # User_Relationship model
@@ -407,8 +386,7 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
+          $ref: "#/components/schemas/ObjectId"
           description: Unique identifier for each relationship
         type:
           type: string
@@ -424,19 +402,16 @@ components:
           format: date-time
           description: Date and time when the relationship was created
         relatingUserId:
-          type: string
-          format: uuid
+          $ref: "#/components/schemas/ObjectId"
           description: The ID of the user in the relationship
         relatedUserId:
-          type: string
-          format: uuid
+          $ref: "#/components/schemas/ObjectId"
           description: The ID of the other user in the relationship
     Nickname:
       type: object
       properties:
         userId:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
+          $ref: "#/components/schemas/ObjectId"
           description: MongoDB _id of the user
         nickname:
           type: string
