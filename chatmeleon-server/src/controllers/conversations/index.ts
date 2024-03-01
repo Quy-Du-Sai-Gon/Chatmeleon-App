@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import prisma from "../../libs/prismadb";
+import { OptionalObjectIdString } from "../../validation";
 
 // Fetch conversations for the authorized user with pagination
 const get = async (req: Request, res: Response) => {
   const { userId } = req.auth!; // Get authenticated user's ID
-  const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
-  const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
+  const pageSize = parseInt(req.query.pageSize as any, 10) || 10; // Get desired page size from query parameters
+  const cursor = OptionalObjectIdString.parse(req.query.cursor); // Get optional cursor for pagination from query parameters
 
   const conversations = await prisma.conversation.findMany({
     where: {
@@ -17,12 +18,14 @@ const get = async (req: Request, res: Response) => {
       lastActive: "desc",
     },
     take: pageSize, // Limit results to the specified page size
+
     ...(cursor && {
       cursor: {
         id: cursor,
       },
       skip: 1,
     }),
+
     select: {
       id: true,
       createdAt: false,
