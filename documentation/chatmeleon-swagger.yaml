@@ -86,6 +86,7 @@ paths:
             application/json:
               schema:
                 type: object
+                required: [conversationId, messageId, createdAt]
                 properties:
                   conversationId:
                     $ref: "#/components/schemas/ObjectId"
@@ -100,10 +101,12 @@ paths:
           description: Unauthorized - User is unauthorized.
       requestBody:
         description: Message data to create.
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required: [relatedUserId]
               properties:
                 relatedUserId:
                   $ref: "#/components/schemas/ObjectId"

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import prisma from "../../libs/prismadb";
-import { OptionalObjectIdString } from "../../validation";
+import { ObjectIdString, OptionalObjectIdString } from "../../validation";
 import { pruneObject } from "../../validation/utils";
+import { z } from "zod";
 
 // Fetch conversations for the authorized user with pagination
 const get = async (req: Request, res: Response) => {
@@ -53,10 +54,16 @@ const get = async (req: Request, res: Response) => {
   res.json(response satisfies ResponseType); // Send the fetched conversations in the response
 };
 
+const postRequestBody = z.object({
+  relatedUserId: ObjectIdString,
+  body: z.string().optional(),
+  image: z.string().url().optional(),
+});
+
 // Handler for creating a new original conversation with initial messages
 const post = async (req: Request, res: Response) => {
   // Extract data from request body and authentication
-  const { relatedUserId, body, image } = req.body;
+  const { relatedUserId, body, image } = postRequestBody.parse(req.body);
   const { userId: senderId } = req.auth!;
 
   // Utilize a Prisma transaction to ensure atomicity and data consistency
@@ -116,6 +123,7 @@ const post = async (req: Request, res: Response) => {
           lastMessageId: createdMessage.id,
         },
       });
+
       // Return appropriate data
       return {
         conversationId: newConversation.id,
@@ -123,9 +131,15 @@ const post = async (req: Request, res: Response) => {
         createdAt: newConversation.createdAt,
       };
     });
-    return res.json(conversationAndMessageInfo);
+
+    type ResponseType = {
+      conversationId: string;
+      messageId: string;
+      createdAt: Date;
+    };
+
+    return res.json(conversationAndMessageInfo satisfies ResponseType);
   } catch (error) {
-    // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
     console.error("Transaction failed:", error);
 
