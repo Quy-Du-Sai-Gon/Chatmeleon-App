@@ -138,6 +138,7 @@ paths:
             application/json:
               schema:
                 type: object
+                required: [createdAt, lastActive, lastMessageId, isGroup, userIds]
                 properties:
                   createdAt:
                     type: string
@@ -421,6 +422,7 @@ components:
           description: The ID of the other user in the relationship
     Nickname:
       type: object
+      required: [userId, nickname]
       properties:
         userId:
           $ref: "#/components/schemas/ObjectId"

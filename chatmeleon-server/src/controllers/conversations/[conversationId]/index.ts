@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import prisma from "../../../libs/prismadb";
+import { ObjectIdString } from "../../../validation";
+import { pruneObject } from "../../../validation/utils";
 
 // Retrieve a specific conversation by ID, ensuring user authorization
 const get = async (req: Request, res: Response) => {
   const { userId } = req.auth!; // Get authenticated user's ID
-  const conversationId = req.params.conversationId;
+  const conversationId = ObjectIdString.parse(req.params.conversationId);
 
   const conversation = await prisma.conversation.findUnique({
     where: {
@@ -32,7 +34,23 @@ const get = async (req: Request, res: Response) => {
       .send("Unauthorized: User is unauthorized");
   }
 
-  res.json(conversation); // Send the retrieved conversation as JSON response
+  type ResponseType = {
+    createdAt: Date;
+    name?: string;
+    lastActive: Date;
+    lastMessageId: string;
+    isGroup: boolean;
+    groupAvatar?: string;
+    nicknames?: Array<{ userId: string; nickname: string }>;
+    userIds: string[];
+  };
+
+  const response: ResponseType = pruneObject(conversation);
+  if (response.nicknames!.length === 0) {
+    delete response.nicknames;
+  }
+
+  res.json(response satisfies ResponseType); // Send the retrieved conversation as JSON response
 };
 
 const conversationWithId = { get };
