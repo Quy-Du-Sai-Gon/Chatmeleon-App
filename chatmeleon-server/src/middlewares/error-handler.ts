@@ -9,7 +9,7 @@ const errorMiddleware = (
 ) => {
   console.error(err); // Log the error for debugging
 
-  if (err instanceof ZodError) {
+  if (err instanceof ZodError || err.statusCode === 400) {
     // validation failed
     return res.sendStatus(400);
   }
