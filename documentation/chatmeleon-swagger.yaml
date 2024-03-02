@@ -95,6 +95,8 @@ paths:
                   createdAt:
                     type: string
                     format: date-time
+        "400":
+          description: Bad Request.
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -163,6 +165,8 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ObjectId"
+        "400":
+          description: Bad Request.
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
