@@ -67,6 +67,13 @@ const post = async (req: Request, res: Response) => {
         data: {
           userIds: [senderId, relatedUserId], // Combine sender and recipients
           isGroup: false, // Mark as "original" conversation
+
+          /**
+           * Ideally, this field is never null since a conversation is always created along
+           * with the first message.
+           * We use a temporary value here as this will be updated to the first message later.
+           */
+          lastMessageId: "000000000000000000000000",
         },
       });
       // Create initial messages for the conversation

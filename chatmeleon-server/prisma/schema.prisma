@@ -53,7 +53,7 @@ model Conversation {
     createdAt     DateTime   @default(now()) // Date and time when the conversation was created
     name          String? // Optional name for the conversation
     lastActive    DateTime?
-    lastMessageId String?    @db.ObjectId // References the latest message in the conversation
+    lastMessageId String     @db.ObjectId // References the latest message in the conversation
     isGroup       Boolean? // Indicates whether the conversation is a group chat
     groupAvatar   String? // Optional avatar for group conversations
     nicknames     Nickname[] // Nicknames for users within the conversation
