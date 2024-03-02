@@ -53,6 +53,7 @@ paths:
                 type: array
                 items:
                   type: object
+                  required: [id, lastMessageId, isGroup]
                   properties:
                     id:
                       $ref: "#/components/schemas/ObjectId"
