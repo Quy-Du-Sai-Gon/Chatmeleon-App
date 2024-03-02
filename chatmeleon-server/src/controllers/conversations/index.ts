@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../../libs/prismadb";
 import { OptionalObjectIdString } from "../../validation";
+import { pruneObject } from "../../validation/utils";
 
 // Fetch conversations for the authorized user with pagination
 const get = async (req: Request, res: Response) => {
@@ -38,7 +39,18 @@ const get = async (req: Request, res: Response) => {
     },
   });
 
-  res.json(conversations); // Send the fetched conversations in the response
+  // Ensure the response type is specification-compliant
+  type ResponseType = Array<{
+    id: string;
+    lastMessageId: string;
+    name?: string;
+    groupAvatar?: string;
+    isGroup: boolean;
+  }>;
+
+  const response = conversations.map(pruneObject);
+
+  res.json(response satisfies ResponseType); // Send the fetched conversations in the response
 };
 
 // Handler for creating a new original conversation with initial messages
