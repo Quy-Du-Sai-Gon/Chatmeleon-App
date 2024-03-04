@@ -19,6 +19,7 @@ import { conversationRoute } from "./routes/conversation-route";
 import { userRoute } from "./routes/user-route";
 import { userRelationshipRoute } from "./routes/user-relationship-route";
 import { friendRoute } from "./routes/friend-route";
+import { socialRoute } from "./routes/social-route";
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use(express.json());
 
 app.use(messageRoute);
 app.use(conversationRoute);
+app.use(socialRoute);
 app.use(userRoute);
 app.use(userRelationshipRoute);
 app.use(friendRoute);
