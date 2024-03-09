@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { isChatTokenPayload } from "../types/auth";
+import { ChatTokenPayload } from "../types/auth";
 
 /**
  * Middleware function to require authentication for a route.
@@ -31,11 +31,17 @@ export const requireAuth = async (
   const chatToken = authHeader.substring("Bearer ".length);
 
   jwt.verify(chatToken, process.env.CHAT_TOKEN_SECRET!, (err, decoded) => {
-    if (err || !isChatTokenPayload(decoded)) {
+    if (err) {
       return resUnauthorized();
     }
 
-    req.auth = decoded;
+    const result = ChatTokenPayload.safeParse(decoded);
+    if (!result.success) {
+      console.error(result.error);
+      return resUnauthorized();
+    }
+
+    req.auth = result.data;
     next();
   });
 };

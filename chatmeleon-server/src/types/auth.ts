@@ -1,5 +1,7 @@
-import { ChatTokenPayload } from "@chatmeleon-app/types/auth";
-export { ChatTokenPayload };
+import { ChatTokenPayload as ChatTokenPayloadType } from "@chatmeleon-app/types/auth";
+export { ChatTokenPayloadType };
 
-export const isChatTokenPayload = (obj: any): obj is ChatTokenPayload =>
-  obj && typeof obj.userId === "string";
+import { z } from "zod";
+import { ObjectIdString } from "../validation";
+
+export const ChatTokenPayload = z.object({ userId: ObjectIdString });

@@ -1,23 +1,15 @@
-import conversationControler from "../controllers/conversation-controller";
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth";
+import conversations from "../controllers/conversations";
+import conversationWithId from "../controllers/conversations/[conversationId]";
 
 export const conversationRoute = Router();
 
 conversationRoute.get(
   "/conversations/:conversationId",
   requireAuth,
-  conversationControler.getConversationById
+  conversationWithId.get
 );
 
-conversationRoute.get(
-  "/conversations",
-  requireAuth,
-  conversationControler.getConversationsByUserIdWithPagination
-);
-
-conversationRoute.post(
-  "/conversations",
-  requireAuth,
-  conversationControler.createOriginalConversationAndFirstMessages
-);
+conversationRoute.get("/conversations", requireAuth, conversations.get);
+conversationRoute.post("/conversations", requireAuth, conversations.post);

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
 
 const errorMiddleware = (
   err: any,
@@ -7,6 +8,12 @@ const errorMiddleware = (
   next: NextFunction
 ) => {
   console.error(err); // Log the error for debugging
+
+  if (err instanceof ZodError || err.statusCode === 400) {
+    // validation failed
+    return res.sendStatus(400);
+  }
+
   res.sendStatus(500);
 };
 
