@@ -2,6 +2,7 @@ import prisma from "../../../libs/prismadb";
 import { Request, Response } from "express";
 import { ObjectIdString, OptionalObjectIdString } from "../../../validation";
 import { pruneObject } from "../../../validation/utils";
+import { z } from "zod";
 
 // Fetch messages for the conversation with pagination
 const get = async (req: Request, res: Response) => {
@@ -20,6 +21,7 @@ const get = async (req: Request, res: Response) => {
           userIds: { has: userId },
         },
       });
+
       const allMessages = await tx.message.findMany({
         where: {
           conversation: {
@@ -73,12 +75,18 @@ const get = async (req: Request, res: Response) => {
   }
 };
 
+const postRequestBody = z.object({
+  body: z.string().optional(),
+  image: z.string().url().optional(),
+});
+
 // Function to create a new message
 const post = async (req: Request, res: Response) => {
   // Extract data from request body and authentication
-  const conversationId = req.params.conversationId;
-  const { body, image } = req.body;
+  const conversationId = ObjectIdString.parse(req.params.conversationId);
+  const { body, image } = postRequestBody.parse(req.body);
   const { userId: senderId } = req.auth!;
+
   try {
     const messageInfo = await prisma.$transaction(async (tx) => {
       // Validate conversation existence
@@ -88,6 +96,7 @@ const post = async (req: Request, res: Response) => {
           userIds: { has: senderId },
         },
       });
+
       // Create the new message within the transaction
       const newMessage = await tx.message.create({
         data: {
@@ -105,6 +114,7 @@ const post = async (req: Request, res: Response) => {
           },
         },
       });
+
       // Update conversation with new message ID and timestamp
       await tx.conversation.update({
         where: {
@@ -116,6 +126,7 @@ const post = async (req: Request, res: Response) => {
           lastMessageId: newMessage.id,
         },
       });
+
       // Return appropriate data
       return {
         messageId: newMessage.id,
@@ -123,9 +134,10 @@ const post = async (req: Request, res: Response) => {
       };
     });
 
-    return res.json(messageInfo);
+    type ResponseType = { messageId: string; createdAt: Date };
+
+    return res.json(messageInfo satisfies ResponseType);
   } catch (error) {
-    // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
     console.error("Transaction failed:", error);
 
