@@ -1,7 +1,7 @@
 import prisma from "../../../libs/prismadb";
 import { Request, Response } from "express";
 import { ObjectIdString, OptionalObjectIdString } from "../../../validation";
-import { pruneObject } from "../../../validation/utils";
+import { prunedObject } from "../../../validation/utils";
 import { z } from "zod";
 
 // Fetch messages for the conversation with pagination
@@ -61,7 +61,7 @@ const get = async (req: Request, res: Response) => {
       senderId: string;
     }>;
 
-    const response = allMessages.map(pruneObject);
+    const response = allMessages.map(prunedObject);
 
     return res.json(response satisfies ResponseType); // Send the fetched messages in the response
   } catch (error) {

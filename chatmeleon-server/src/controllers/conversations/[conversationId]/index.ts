@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../../../libs/prismadb";
 import { ObjectIdString } from "../../../validation";
-import { pruneObject } from "../../../validation/utils";
+import { prunedObject } from "../../../validation/utils";
 
 // Retrieve a specific conversation by ID, ensuring user authorization
 const get = async (req: Request, res: Response) => {
@@ -45,7 +45,7 @@ const get = async (req: Request, res: Response) => {
     userIds: string[];
   };
 
-  const response: ResponseType = pruneObject(conversation);
+  const response: ResponseType = prunedObject(conversation);
   if (response.nicknames!.length === 0) {
     delete response.nicknames;
   }

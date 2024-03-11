@@ -20,7 +20,7 @@ export type Pruned<T> = OmitType<
 /**
  * Returns a new object with properties from the passed in object, excluding null or undefined values (pruned).
  */
-export function pruneObject<T extends object>(obj: T): Pruned<T> {
+export function prunedObject<T extends object>(obj: T): Pruned<T> {
   return Object.fromEntries(
     Object.entries(obj).filter(([_, v]) => v != null)
   ) as any;
