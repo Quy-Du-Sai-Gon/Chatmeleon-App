@@ -1,11 +1,8 @@
-import prisma from "../libs/prismadb";
+import prisma from "../../../libs/prismadb";
 import { Request, Response } from "express";
 
 // Fetch messages for the conversation with pagination
-const getMessagesByConversationIdWithPagination = async (
-  req: Request,
-  res: Response
-) => {
+const get = async (req: Request, res: Response) => {
   const { userId } = req.auth!; // Get authenticated user's ID
   const conversationId = req.params.conversationId;
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
@@ -61,7 +58,7 @@ const getMessagesByConversationIdWithPagination = async (
 };
 
 // Function to create a new message
-const createMessage = async (req: Request, res: Response) => {
+const post = async (req: Request, res: Response) => {
   // Extract data from request body and authentication
   const conversationId = req.params.conversationId;
   const { body, image } = req.body;
@@ -123,7 +120,6 @@ const createMessage = async (req: Request, res: Response) => {
   }
 };
 
-export default {
-  getMessagesByConversationIdWithPagination,
-  createMessage,
-};
+const messagesWithConversationId = { get, post };
+
+export default messagesWithConversationId;
