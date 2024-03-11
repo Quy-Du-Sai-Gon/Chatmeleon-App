@@ -1,12 +1,16 @@
 import prisma from "../../../libs/prismadb";
 import { Request, Response } from "express";
+import { ObjectIdString, OptionalObjectIdString } from "../../../validation";
+import { pruneObject } from "../../../validation/utils";
 
 // Fetch messages for the conversation with pagination
 const get = async (req: Request, res: Response) => {
   const { userId } = req.auth!; // Get authenticated user's ID
-  const conversationId = req.params.conversationId;
-  const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
-  const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
+
+  const conversationId = ObjectIdString.parse(req.params.conversationId);
+  const pageSize = parseInt(req.query.pageSize as any, 10) || 10; // Get desired page size from query parameters
+  const cursor = OptionalObjectIdString.parse(req.query.cursor); // Get optional cursor for pagination from query parameters
+
   try {
     const allMessages = await prisma.$transaction(async (tx) => {
       // Validate conversation existence
@@ -42,11 +46,23 @@ const get = async (req: Request, res: Response) => {
           senderId: true,
         },
       });
+
       return allMessages;
     });
-    return res.json(allMessages); // Send the fetched messages in the response
+
+    type ResponseType = Array<{
+      id: string;
+      body?: string;
+      image?: string;
+      createdAt: Date;
+      seenIds: string[];
+      senderId: string;
+    }>;
+
+    const response = allMessages.map(pruneObject);
+
+    return res.json(response satisfies ResponseType); // Send the fetched messages in the response
   } catch (error) {
-    // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
     console.error("Transaction failed:", error);
 
