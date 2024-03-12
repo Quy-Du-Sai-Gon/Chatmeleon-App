@@ -188,13 +188,13 @@ paths:
           example: "fdf919880bcde1e42cb3e588"
         - name: pageSize
           in: query
-          description: The number of messages in one page. When this query is empty, a default value of 10 will be used. A positive pageSize will return a pageSize number of message that is older than the cursor, for example [cursor = mess2.id; pageSize = 2] will return [mess3, mess4]. A negative pageSize will do the opposite, [cursor = mess4.id; pageSize = -2] will return [mess2, mess3].
+          description: The number of messages in one page. When this query is empty, is 0, or is not a valid number, a default value of 10 will be used. A positive pageSize will return a pageSize number of message that is older than the cursor, for example [cursor = mess2.id; pageSize = 2] will return [mess3, mess4]. A negative pageSize will do the opposite, [cursor = mess4.id; pageSize = -2] will return [mess2, mess3].
           schema:
             type: integer
             default: 10
         - name: cursor
           in: query
-          description: The ID of the message, adjacent to which a page of other messages will be retrieved. This can be used in pagination to get the next message page, using the id of the last item of a previously retrieved page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently sent pageSize number of messages. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [mess1, mess2], [cursor = null; pageSize = -3] will return [mess3, mess4, mess5].
+          description: The ID of the message, adjacent to which a page of other messages will be retrieved. This can be used in pagination to get the next message page, using the id of the last item of a previously retrieved page. When this query is empty, a default value of null will be used. When the cursor is null, a positive pageSize will return the most recently sent pageSize number of messages. A negative pageSize will do the opposite, returning the oldest pageSize number of conversation. For example, [cursor = null; pageSize = 2] will return [mess1, mess2], [cursor = null; pageSize = -3] will return [mess3, mess4, mess5]. An invalid ObjectId string will result in a 400 Bad Request response.
           schema:
             $ref: "#/components/schemas/ObjectId"
             default: null
@@ -209,6 +209,7 @@ paths:
                 type: array
                 items:
                   type: object
+                  required: [id, createdAt, seenIds, senderId]
                   properties:
                     id:
                       $ref: "#/components/schemas/ObjectId"
@@ -226,6 +227,8 @@ paths:
                         $ref: "#/components/schemas/ObjectId"
                     senderId:
                       $ref: "#/components/schemas/ObjectId"
+        "400":
+          description: Bad Request.
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -252,12 +255,15 @@ paths:
             application/json:
               schema:
                 type: object
+                required: [messageId, createdAt]
                 properties:
                   messageId:
                     $ref: "#/components/schemas/ObjectId"
                   createdAt:
                     type: string
                     format: date-time
+        "400":
+          description: Bad Request.
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -265,6 +271,7 @@ paths:
 
       requestBody:
         description: Message data to create.
+        required: true
         content:
           application/json:
             schema:

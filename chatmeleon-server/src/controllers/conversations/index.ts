@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../../libs/prismadb";
 import { ObjectIdString, OptionalObjectIdString } from "../../validation";
-import { pruneObject } from "../../validation/utils";
+import { prunedObject } from "../../validation/utils";
 import { z } from "zod";
 
 // Fetch conversations for the authorized user with pagination
@@ -49,7 +49,7 @@ const get = async (req: Request, res: Response) => {
     isGroup: boolean;
   }>;
 
-  const response = conversations.map(pruneObject);
+  const response = conversations.map(prunedObject);
 
   res.json(response satisfies ResponseType); // Send the fetched conversations in the response
 };
