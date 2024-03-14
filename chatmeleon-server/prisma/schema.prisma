@@ -53,9 +53,9 @@ model Conversation {
     id            String     @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each conversation
     createdAt     DateTime   @default(now()) // Date and time when the conversation was created
     name          String? // Optional name for the conversation
-    lastActive    DateTime? // Optional date for last message sent
-    lastMessageId String?    @db.ObjectId // References the latest message in the conversation
-    isGroup       Boolean? // Indicates whether the conversation is a group chat
+    lastActive    DateTime   @default(now())
+    lastMessageId String     @db.ObjectId // References the latest message in the conversation
+    isGroup       Boolean    @default(false) // Indicates whether the conversation is a group chat
     groupAvatar   String? // Optional avatar for group conversations
     nicknames     Nickname[] // Nicknames for users within the conversation
     messagesIds   String[]   @db.ObjectId // Message IDs of all messages in the conversation

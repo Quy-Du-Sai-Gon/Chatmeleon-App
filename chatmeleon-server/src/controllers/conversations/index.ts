@@ -1,48 +1,14 @@
-import prisma from "../libs/prismadb";
 import { Request, Response } from "express";
-
-// Retrieve a specific conversation by ID, ensuring user authorization
-const getConversationById = async (req: Request, res: Response) => {
-  const { userId } = req.auth!; // Get authenticated user's ID
-  const conversationId = req.params.conversationId;
-
-  const conversation = await prisma.conversation.findUnique({
-    where: {
-      id: conversationId,
-      userIds: {
-        has: userId, // Check if authorized user is part of the conversation
-      },
-    },
-    select: {
-      id: false,
-      createdAt: true,
-      name: true,
-      lastActive: true,
-      lastMessageId: true,
-      isGroup: true,
-      groupAvatar: true,
-      nicknames: true,
-      userIds: true,
-    },
-  });
-  if (!conversation) {
-    return res
-      .status(403)
-      .type("text/plain")
-      .send("Unauthorized: User is unauthorized");
-  }
-
-  res.json(conversation); // Send the retrieved conversation as JSON response
-};
+import prisma from "../../libs/prismadb";
+import { ObjectIdString, OptionalObjectIdString } from "../../validation";
+import { prunedObject } from "../../validation/utils";
+import { z } from "zod";
 
 // Fetch conversations for the authorized user with pagination
-const getConversationsByUserIdWithPagination = async (
-  req: Request,
-  res: Response
-) => {
+const get = async (req: Request, res: Response) => {
   const { userId } = req.auth!; // Get authenticated user's ID
-  const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Get desired page size from query parameters
-  const cursor = req.query.cursor as string | undefined; // Get optional cursor for pagination from query parameters
+  const pageSize = parseInt(req.query.pageSize as any, 10) || 10; // Get desired page size from query parameters
+  const cursor = OptionalObjectIdString.parse(req.query.cursor); // Get optional cursor for pagination from query parameters
 
   const conversations = await prisma.conversation.findMany({
     where: {
@@ -54,12 +20,14 @@ const getConversationsByUserIdWithPagination = async (
       lastActive: "desc",
     },
     take: pageSize, // Limit results to the specified page size
+
     ...(cursor && {
       cursor: {
         id: cursor,
       },
       skip: 1,
     }),
+
     select: {
       id: true,
       createdAt: false,
@@ -72,17 +40,32 @@ const getConversationsByUserIdWithPagination = async (
     },
   });
 
-  res.json(conversations); // Send the fetched conversations in the response
+  // Ensure the response type is specification-compliant
+  type ResponseType = Array<{
+    id: string;
+    lastMessageId: string;
+    name?: string;
+    groupAvatar?: string;
+    isGroup: boolean;
+  }>;
+
+  const response = conversations.map(prunedObject);
+
+  res.json(response satisfies ResponseType); // Send the fetched conversations in the response
 };
 
-// Controller for creating a new original conversation with initial messages
-const createOriginalConversationAndFirstMessages = async (
-  req: Request,
-  res: Response
-) => {
+const postRequestBody = z.object({
+  relatedUserId: ObjectIdString,
+  body: z.string().optional(),
+  image: z.string().url().optional(),
+});
+
+// Handler for creating a new original conversation with initial messages
+const post = async (req: Request, res: Response) => {
   // Extract data from request body and authentication
-  const { relatedUserId, body, image } = req.body;
+  const { relatedUserId, body, image } = postRequestBody.parse(req.body);
   const { userId: senderId } = req.auth!;
+
   // Utilize a Prisma transaction to ensure atomicity and data consistency
   try {
     const conversationAndMessageInfo = await prisma.$transaction(async (tx) => {
@@ -103,6 +86,13 @@ const createOriginalConversationAndFirstMessages = async (
         data: {
           userIds: [senderId, relatedUserId], // Combine sender and recipients
           isGroup: false, // Mark as "original" conversation
+
+          /**
+           * Ideally, this field is never null since a conversation is always created along
+           * with the first message.
+           * We use a temporary value here as this will be updated to the first message later.
+           */
+          lastMessageId: "000000000000000000000000",
         },
       });
       // Create initial messages for the conversation
@@ -133,6 +123,7 @@ const createOriginalConversationAndFirstMessages = async (
           lastMessageId: createdMessage.id,
         },
       });
+
       // Return appropriate data
       return {
         conversationId: newConversation.id,
@@ -140,9 +131,15 @@ const createOriginalConversationAndFirstMessages = async (
         createdAt: newConversation.createdAt,
       };
     });
-    return res.json(conversationAndMessageInfo);
+
+    type ResponseType = {
+      conversationId: string;
+      messageId: string;
+      createdAt: Date;
+    };
+
+    return res.json(conversationAndMessageInfo satisfies ResponseType);
   } catch (error) {
-    // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
     console.error("Transaction failed:", error);
 
@@ -153,8 +150,6 @@ const createOriginalConversationAndFirstMessages = async (
   }
 };
 
-export default {
-  getConversationById,
-  getConversationsByUserIdWithPagination,
-  createOriginalConversationAndFirstMessages,
-};
+const conversations = { get, post };
+
+export default conversations;
