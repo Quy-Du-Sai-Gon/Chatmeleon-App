@@ -11,7 +11,7 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
       const users = await tx.user.findMany({
         where: {
           name: {
-            contains: req.query.name as string,
+            contains: name as string,
           },
         },
         select: {
