@@ -286,7 +286,7 @@ paths:
 
   /friend/send:
     post:
-      description: Create a friend sending and pending relationship between two users.
+      description: Create a friend sending and pending relationship between two users. For example, if A send B a friend request, relationship of A to B will be of type SENDING_FRIEND_REQUEST, and B to A will be of type PENDING_FRIEND_REQUEST.
       tags:
         - relationships
       summary: Create a relationship.
@@ -294,11 +294,11 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: Relationship created successfully.
+          description: Relationship created successfully. This can only be achieved if there was no prior relationship between user A and user B. Meaning there did not exist a relationship record between them.
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
-          description: Unauthorized - User is unauthorized.
+          description: Unauthorized - User is unauthorized. This can be due to an already existed relationship of any type prior to this request. For example, any relationship of type FRIEND - FRIEND (cannot send friend request if already friends); PENDING_FRIEND_REQUEST - SENDING_FRIEND_REQUEST (already sent friend request); BLOCK - BLOCKED (cannot send friend if already blocked)... between the two users will be deemed unauthorized.
 
       requestBody:
         description: The ID of the other user to create relationship.
@@ -308,12 +308,11 @@ paths:
               type: object
               properties:
                 relatedUserId:
-                  type: string
-                  pattern: "^[0-9a-f]{24}$"
+                  $ref: "#/components/schemas/ObjectId"
 
   /friend/accept:
     put:
-      description: Create a friend relationship between two users.
+      description: Create a friend relationship between two users. For example, if A relationship to B is SENDING_FRIEND_REQUEST and B to A is PENDING_FRIEND_REQUEST, then B can accept the friend request.
       tags:
         - relationships
       summary: Create a friend relationship
@@ -321,11 +320,11 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: Relationship created successfully.
+          description: Relationship updated successfully. This can only be achieved by B if A relationship to B is SENDING_FRIEND_REQUEST and B to A is PENDING_FRIEND_REQUEST. Meaning there already existed two records of types PENDING_FRIEND_REQUEST (B to A) and SENDING_FRIEND_REQUEST (A to B).
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
-          description: Unauthorized - User is unauthorized.
+          description: Unauthorized - User is unauthorized. This can be due to incorrect types in both relationships (A to B and B to A) as stated above. B will be deemed authorized if relationship of B to A is not PENDING_FRIEND_REQUEST and A to B is not SENDING_FRIEND_REQUEST. For example, FRIEND - FRIEND (cannot accept friend request if already friends), PENDING_FRIEND_REQUEST - SENDING_FRIEND_REQUEST (B cannot accept friend request if B is the one who sent the request),.. will be deemed unauthorized.
 
       requestBody:
         description: The ID of the other user to create relationship.
@@ -335,12 +334,11 @@ paths:
               type: object
               properties:
                 relatedUserId:
-                  type: string
-                  pattern: "^[0-9a-f]{24}$"
+                  $ref: "#/components/schemas/ObjectId"
 
   /friend/decline:
     put:
-      description: Delete a friend sending and pending relationship between two users.
+      description: Delete a friend sending and pending relationship between two users. For example, if A relationship to B is SENDING_FRIEND_REQUEST and B to A is PENDING_FRIEND_REQUEST, then B can decline the friend request. Note that there does exist a relationship of type STRANGER or any type equivalent to it, so this will delete the already existed two records between the users.
       tags:
         - relationships
       summary: Delete a relationship
@@ -348,11 +346,11 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: Relationship deleted successfully.
+          description: Relationship deleted successfully. This can only be achieved by B if A relationship to B is SENDING_FRIEND_REQUEST and B to A is PENDING_FRIEND_REQUEST. Meaning there already existed two records of types PENDING_FRIEND_REQUEST (B to A) and SENDING_FRIEND_REQUEST (A to B).
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
-          description: Unauthorized - User is unauthorized.
+          description: Unauthorized - User is unauthorized. This can be due to incorrect types in both relationships (A to B and B to A) as stated above. B will be deemed authorized if relationship of B to A is not PENDING_FRIEND_REQUEST and A to B is not SENDING_FRIEND_REQUEST. For example, FRIEND - FRIEND (cannot decline friend request if already friends), PENDING_FRIEND_REQUEST - SENDING_FRIEND_REQUEST (B cannot decline friend request if B is the one who sent the request),.. will be deemed unauthorized.
 
       requestBody:
         description: The ID of the other user to delete relationship.
@@ -362,8 +360,7 @@ paths:
               type: object
               properties:
                 relatedUserId:
-                  type: string
-                  pattern: "^[0-9a-f]{24}$"
+                  $ref: "#/components/schemas/ObjectId"
 
   /friends/search:
     get:
@@ -387,8 +384,8 @@ paths:
           in: query
           description: The ID of the most relevant user of the last messages page. When this query is empty, a default value of null will be used.
           schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            allOf:
+              - $ref: "#/components/schemas/ObjectId"
             default: null
       security:
         - bearerAuth: []
@@ -403,23 +400,16 @@ paths:
                   type: object
                   properties:
                     userId:
-                      type: string
-                      pattern: "^[0-9a-f]{24}$"
+                      $ref: "#/components/schemas/ObjectId"
                     name:
                       type: string
                     image:
                       type: string
                     relationshipType:
-                      type: string
-                      enum:
-                        - FRIEND
-                        - BLOCK
-                        - FOLLOWING
-                        - PENDING_FRIEND_REQUEST
-                        - SENDING_FRIEND_REQUEST
+                      $ref: "#/components/schemas/RelationshipType"
                     originalConversationId:
-                      type: string
-                      pattern: "^[0-9a-f]{24}$"
+                      $ref: "#/components/schemas/ObjectId"
+
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -448,8 +438,8 @@ paths:
           in: query
           description: The ID of the most relevant user of the last messages page. When this query is empty, a default value of null will be used.
           schema:
-            type: string
-            pattern: "^[0-9a-f]{24}$"
+            allOf:
+              - $ref: "#/components/schemas/ObjectId"
             default: null
       security:
         - bearerAuth: []
@@ -464,23 +454,15 @@ paths:
                   type: object
                   properties:
                     userId:
-                      type: string
-                      pattern: "^[0-9a-f]{24}$"
+                      $ref: "#/components/schemas/ObjectId"
                     name:
                       type: string
                     image:
                       type: string
                     relationshipType:
-                      type: string
-                      enum:
-                        - FRIEND
-                        - BLOCK
-                        - FOLLOWING
-                        - PENDING_FRIEND_REQUEST
-                        - SENDING_FRIEND_REQUEST
+                      $ref: "#/components/schemas/RelationshipType"
                     originalConversationId:
-                      type: string
-                      pattern: "^[0-9a-f]{24}$"
+                      $ref: "#/components/schemas/ObjectId"
         "401":
           description: Unauthorized - JWT token is missing or invalid.
         "403":
@@ -539,48 +521,6 @@ components:
           items:
             $ref: "#/components/schemas/ObjectId"
             description: List of message IDs the user has seen
-
-    Account:
-      type: object
-      properties:
-        id:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
-          description: MongoDB _id of the account.
-        userId:
-          type: string
-          pattern: "^[0-9a-f]{24}$"
-          description: User ID
-        type:
-          type: string
-          description: Type of account (e.g., "google", "facebook")
-        provider:
-          type: string
-          description: Authentication provider
-        providerAccountId:
-          type: string
-          description: Identifier from the authentication provider
-        refresh_token:
-          type: string
-          description: Refresh token for authentication
-        access_token:
-          type: string
-          description: Access token for authentication
-        expires_at:
-          type: integer
-          description: Expiration time for access token
-        token_type:
-          type: string
-          description: Token type
-        scope:
-          type: string
-          description: Scope of the access token
-        id_token:
-          type: string
-          description: ID token from the authentication provider
-        session_state:
-          type: string
-          description: Session state
     Message:
       type: object
       properties:
@@ -685,3 +625,11 @@ components:
         nickname:
           type: string
           description: Optional nickname for a user
+    RelationshipType:
+      type: string
+      enum:
+        - FRIEND
+        - BLOCK
+        - FOLLOWING
+        - PENDING_FRIEND_REQUEST
+        - SENDING_FRIEND_REQUEST
