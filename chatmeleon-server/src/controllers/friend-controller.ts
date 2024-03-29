@@ -12,6 +12,7 @@ const getFriendsWithPagination = async (req: Request, res: Response) => {
       const relationships = await tx.user_Relationship.findMany({
         where: {
           relatingUserId: userId,
+          type: "FRIEND",
         },
         select: {
           relatedUserId: true,
