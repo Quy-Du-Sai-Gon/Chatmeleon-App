@@ -58,7 +58,6 @@ const createFriendRequestRelationship = async (req: Request, res: Response) => {
       });
     });
   } catch (error) {
-    // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
     console.error("Transaction failed -", error);
     return res
@@ -110,7 +109,7 @@ const createFriendRelationship = async (req: Request, res: Response) => {
           ); // Return an error code
         }
       }
-      // Create new records
+      // Update records
       await tx.user_Relationship.updateMany({
         where: {
           OR: [
@@ -132,7 +131,6 @@ const createFriendRelationship = async (req: Request, res: Response) => {
       });
     });
   } catch (error) {
-    // Throw the error to trigger the transaction rollback
     // Log the error and send a 403 Unauthorized response
     console.error("Transaction failed -", error);
     return res
@@ -184,7 +182,7 @@ const deleteFriendRequestRelationship = async (req: Request, res: Response) => {
           ); // Return an error code
         }
       }
-      // Create new records
+      // Delete records
       await tx.user_Relationship.deleteMany({
         where: {
           OR: [
@@ -215,15 +213,8 @@ const deleteFriendRequestRelationship = async (req: Request, res: Response) => {
   res.status(200).type("text/plain").send("OK");
 };
 
-// TO-DO for Khoa
-const getFriendsByNameWithPagination = async (
-  req: Request,
-  res: Response
-) => {};
-
 export default {
   createFriendRequestRelationship,
   createFriendRelationship,
   deleteFriendRequestRelationship,
-  getFriendsByNameWithPagination,
 };
