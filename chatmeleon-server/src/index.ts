@@ -13,13 +13,16 @@ const swaggerDocument = YAML.load("../documentation/chatmeleon-swagger.yaml");
 
 dotenv.config();
 
-
 import errorMiddleware from "./middlewares/error-handler";
 import { messageRoute } from "./routes/message-route";
 import { conversationRoute } from "./routes/conversation-route";
 import { userRoute } from "./routes/user-route";
+import { createServer } from "http";
+import { io } from "./libs/socket.io";
 
 const app = express();
+const httpServer = createServer(app);
+io.attach(httpServer);
 
 const port = process.env.PORT;
 
@@ -38,7 +41,7 @@ app.use(userRoute);
 
 app.use(errorMiddleware);
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
