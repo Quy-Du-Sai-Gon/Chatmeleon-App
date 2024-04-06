@@ -1,4 +1,5 @@
 import Sidebar from "../components/sidebars/Sidebar";
+import { SocketProvider } from "../context/SocketContext";
 
 export default async function ConversationsLayout({
   children,
@@ -6,9 +7,10 @@ export default async function ConversationsLayout({
   children: React.ReactNode;
 }) {
   return (
-    // @ts-expect-error Server Component
-    <Sidebar>
-      <div className="h-full">{children}</div>);
-    </Sidebar>
+    <SocketProvider>
+      <Sidebar>
+        <div className="h-full">{children}</div>);
+      </Sidebar>
+    </SocketProvider>
   );
 }
