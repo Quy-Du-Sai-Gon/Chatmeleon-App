@@ -3,6 +3,8 @@ import { Request, Response } from "express";
 import { ObjectIdString, OptionalObjectIdString } from "../../../validation";
 import { prunedObject } from "../../../validation/utils";
 import { z } from "zod";
+import { io } from "../../../libs/socket.io";
+import { getActiveSocketId } from "../../../utils";
 
 // Fetch messages for the conversation with pagination
 const get = async (req: Request, res: Response) => {
@@ -86,6 +88,7 @@ const post = async (req: Request, res: Response) => {
   const conversationId = ObjectIdString.parse(req.params.conversationId);
   const { body, image } = postRequestBody.parse(req.body);
   const { userId: senderId } = req.auth!;
+  const activeSocket = getActiveSocketId(req);
 
   try {
     const messageInfo = await prisma.$transaction(async (tx) => {
@@ -133,6 +136,24 @@ const post = async (req: Request, res: Response) => {
         createdAt: newMessage.createdAt,
       };
     });
+
+    type NewMessageEventPayload = {
+      id: string;
+      body?: string;
+      image?: string;
+      createdAt: Date;
+      senderId: string;
+    };
+
+    io.to(conversationId)
+      .except(activeSocket!)
+      .emit("new-msg", conversationId, {
+        id: messageInfo.messageId,
+        body,
+        image,
+        createdAt: messageInfo.createdAt,
+        senderId,
+      } satisfies NewMessageEventPayload);
 
     type ResponseType = { messageId: string; createdAt: Date };
 

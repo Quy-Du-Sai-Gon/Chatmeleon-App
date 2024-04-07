@@ -1,3 +1,7 @@
+import { Request } from "express";
+
+export const getActiveSocketId = (req: Request) => req.get("X-Active-Socket");
+
 export function parseCorsOrigin(value: string | undefined) {
   if (value === undefined) return;
 
