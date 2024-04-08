@@ -351,7 +351,6 @@ paths:
           description: Unauthorized - JWT token is missing or invalid.
         "403":
           description: Unauthorized - User is unauthorized. This can be due to incorrect types in both relationships (A to B and B to A) as stated above. B will be deemed authorized if relationship of B to A is not PENDING_FRIEND_REQUEST and A to B is not SENDING_FRIEND_REQUEST. For example, FRIEND - FRIEND (cannot decline friend request if already friends), PENDING_FRIEND_REQUEST - SENDING_FRIEND_REQUEST (B cannot decline friend request if B is the one who sent the request),.. will be deemed unauthorized.
-
       requestBody:
         description: The ID of the other user to delete relationship.
         content:
@@ -361,59 +360,6 @@ paths:
               properties:
                 relatedUserId:
                   $ref: "#/components/schemas/ObjectId"
-
-  /friends/search:
-    get:
-      description: Retrieve a page of friends associated with the current logged in user, with the support of cursor-based pagination ordered/based on a searched string.
-      tags:
-        - relationships
-      summary: Get friends of the current user.
-      parameters:
-        - name: name
-          in: query
-          description: The string of name that is being searched for. When this query is empty, it should return a page of friends in alphabetical order with cursor-based pagination.
-          schema:
-            type: string
-        - name: pageSize
-          in: query
-          description: The number of user one page. When this query is empty, a default value of 10 will be used. This only accepts positive values for pageSize.
-          schema:
-            type: integer
-            default: 10
-        - name: cursor
-          in: query
-          description: The ID of the most relevant user of the last messages page. When this query is empty, a default value of null will be used.
-          schema:
-            allOf:
-              - $ref: "#/components/schemas/ObjectId"
-            default: null
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: An array of friends related to the searched name.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    userId:
-                      $ref: "#/components/schemas/ObjectId"
-                    name:
-                      type: string
-                    image:
-                      type: string
-                    relationshipType:
-                      $ref: "#/components/schemas/RelationshipType"
-                    originalConversationId:
-                      $ref: "#/components/schemas/ObjectId"
-
-        "401":
-          description: Unauthorized - JWT token is missing or invalid.
-        "403":
-          description: Unauthorized - User is unauthorized.
 
   /users/search:
     get:
@@ -440,6 +386,13 @@ paths:
           schema:
             allOf:
               - $ref: "#/components/schemas/ObjectId"
+            default: null
+        - name: filter
+          in: query
+          description: Filter users by relationship type (e.g., friend,...). If empty, then fetch everyone without filters.
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/RelationshipType"
             default: null
       security:
         - bearerAuth: []
