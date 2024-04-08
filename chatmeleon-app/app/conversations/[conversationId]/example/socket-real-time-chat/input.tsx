@@ -1,8 +1,8 @@
 "use client";
 
 import { FC, useCallback, useState } from "react";
-import { Message } from "../socket-real-time-chat";
 import { useSession } from "next-auth/react";
+import { Message } from "./types";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
