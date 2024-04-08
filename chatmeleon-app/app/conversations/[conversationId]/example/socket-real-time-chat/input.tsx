@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useCallback, useState } from "react";
+import { FC, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Message } from "./types";
 
@@ -63,6 +63,12 @@ const ExampleInput: FC<ExampleInputProps> = ({
     [conversationId, onMessageSent, session.data, session.status]
   );
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current!.scrollIntoView();
+  }, []);
+
   return (
     <div>
       {error && (
@@ -71,6 +77,7 @@ const ExampleInput: FC<ExampleInputProps> = ({
       <input
         type="text"
         className="mt-4 border-2 border-blue-300 disabled:border-gray-400 disabled:text-gray-400"
+        ref={inputRef}
         placeholder="Say something..."
         value={value}
         onChange={(e) => setValue(e.target.value)}
