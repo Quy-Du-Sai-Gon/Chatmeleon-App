@@ -66,6 +66,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.sub = user.id;
         token.chatToken = jwt.sign(
           { userId: user.id } satisfies ChatTokenPayload,
           process.env.CHAT_TOKEN_SECRET!
@@ -76,6 +77,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
+      session.user.id = token.sub;
       session.chatToken = token.chatToken;
 
       return session;
