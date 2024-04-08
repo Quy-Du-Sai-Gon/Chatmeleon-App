@@ -1,11 +1,31 @@
+import { Relationship } from "@prisma/client";
 import prisma from "../libs/prismadb";
 import { Request, Response } from "express";
+import { CLIENT_RENEG_LIMIT } from "tls";
 
 const getUsersByNameWithPagination = async (req: Request, res: Response) => {
   const { userId } = req.auth!;
   const name = req.query.name as string | "";
   const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
   const cursor = req.query.cursor as string | null;
+  const filter = req.query.filter as Relationship | undefined;
+
+  if (
+    filter !== undefined &&
+    ![
+      "FRIEND",
+      "BLOCK",
+      "FOLLOWING",
+      "PENDING_FRIEND_REQUEST",
+      "SENDING_FRIEND_REQUEST",
+    ].includes(filter)
+  ) {
+    return res.json({
+      error:
+        "Filter value error: Filter only accepts [FRIEND, BLOCK, FOLLOWING, PENDING_FRIEND_REQUEST, SENDING_FRIEND_REQUEST]",
+    });
+  }
+
   try {
     const results = await prisma.$transaction(async (tx) => {
       const users = await tx.user.findMany({
@@ -19,9 +39,6 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
           name: true,
           image: true,
         },
-        take: pageSize,
-        skip: cursor ? 1 : 0,
-        cursor: cursor ? { id: cursor } : undefined,
       });
 
       const promises = users.map(async (user) => {
@@ -29,8 +46,13 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
           where: {
             relatingUserId: userId,
             relatedUserId: user.id,
+            type: filter,
           },
         });
+
+        if (filter && !relationship) {
+          return;
+        }
 
         let originalConversationId;
 
@@ -55,12 +77,21 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
         return outData;
       });
       const paginatedResults = await Promise.all(promises);
-      // const filteredResults = paginatedResults.filter(Boolean);
-      // const cursorIndex = cursor
-      //   ? filteredResults.findIndex((obj) => obj?.userId === cursor)
-      //   : -1;
-      // return filteredResults.slice(cursorIndex + 1, cursorIndex + 1 + pageSize);
-      return paginatedResults;
+      const filterPaginatedResults = paginatedResults.filter(
+        (item) => item !== undefined
+      );
+
+      filterPaginatedResults.sort((a, b) => a!.userId.localeCompare(b!.userId));
+      const startIndex = cursor
+        ? filterPaginatedResults.findIndex((item) => item!.userId === cursor) +
+          1
+        : 0;
+      console.log(filterPaginatedResults);
+      const currentPageResults = filterPaginatedResults.slice(
+        startIndex,
+        startIndex + pageSize
+      );
+      return currentPageResults;
     });
     return res.json(results);
   } catch (error) {
