@@ -1,7 +1,8 @@
 "use client";
 
 import { useSocketWithStates } from "@/app/hook/socket";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -20,41 +21,62 @@ const useMessages = (conversationId: string) => {
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const abortCtrlRef = useRef<AbortController | null>(null);
+  const fetchMessages = useCallback(
+    async (abortSignal: AbortSignal, chatToken: string | undefined) => {
+      const getMessagesURL = `${BACKEND_URL}/conversations/${conversationId}/messages`;
+      const pageSize = 100; // fixed page size used for testing, no pagination
 
-  useEffect(() => {
-    abortCtrlRef.current?.abort();
-    abortCtrlRef.current = new AbortController();
+      try {
+        const res = await fetch(`${getMessagesURL}?pageSize=${pageSize}`, {
+          method: "GET",
+          signal: abortSignal,
+          headers: chatToken
+            ? {
+                Authorization: `Bearer ${chatToken}`,
+              }
+            : undefined,
+        });
 
-    const getMessagesURL = `${BACKEND_URL}/conversations/${conversationId}/messages`;
-    const pageSize = 100; // fixed page size used for testing, no pagination
-
-    fetch(`${getMessagesURL}?pageSize=${pageSize}`, {
-      method: "GET",
-      signal: abortCtrlRef.current.signal,
-    })
-      .then(async (res) => {
         if (!res.ok) {
-          throw Error(await res.text());
+          throw new Error(await res.text());
         }
+
         if (!res.headers.get("Content-Type")?.includes("application/json")) {
-          throw Error("Expected data");
+          throw new Error("Expected data");
         }
 
         // assume the data are the messages without validating
         const messages: Message[] = await res.json();
         setMessages(messages);
         setError(null);
-      })
-      .catch((err: Error /** assume type Error without validating */) => {
-        if (err.name === "AbortError") return;
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
 
         setMessages(null);
-        setError(err);
-      });
+        setError(err as Error);
+      }
+    },
+    [conversationId]
+  );
 
-    return () => abortCtrlRef.current?.abort();
-  }, [conversationId]);
+  const session = useSession();
+  const chatToken = session.data?.chatToken;
+
+  const abortCtrlRef = useRef<AbortController | null>(null);
+
+  // Fetch the messages as an effect
+  useEffect(() => {
+    if (session.status === "loading") return;
+
+    abortCtrlRef.current = new AbortController();
+
+    fetchMessages(abortCtrlRef.current.signal, chatToken);
+
+    return () => {
+      abortCtrlRef.current?.abort();
+      abortCtrlRef.current = null;
+    };
+  }, [chatToken, fetchMessages, session.status]);
 
   return useMemo(
     () => ({
@@ -70,27 +92,7 @@ const useMessages = (conversationId: string) => {
  */
 const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
   const { socket, id: socketId } = useSocketWithStates();
-  // const { messages, error } = useMessages(conversationId);
-
-  // FAKE DATA
-  const error = null as Error | null;
-  const messages = Array(10)
-    .fill(
-      JSON.parse(
-        JSON.stringify([
-          {
-            id: 1,
-            senderId: "1233",
-            createdAt: new Date(),
-            body: "Hello",
-            image:
-              "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.nj.com%2Fresizer%2Fmg42jsVYwvbHKUUFQzpw6gyKmBg%3D%2F1280x0%2Fsmart%2Fadvancelocal-adapter-image-uploads.s3.amazonaws.com%2Fimage.nj.com%2Fhome%2Fnjo-media%2Fwidth2048%2Fimg%2Fsomerset_impact%2Fphoto%2Fsm0212petjpg-7a377c1c93f64d37.jpg&f=1&nofb=1&ipt=62be44947434abb6e5b02218fb8bca1f8508a8bcab9cc8341cf8443d24ee2383&ipo=images",
-          },
-          { id: 2, senderId: "fasfw", createdAt: new Date(), body: "yo" },
-        ])
-      )
-    )
-    .flat() as Message[] | null;
+  const { messages, error } = useMessages(conversationId);
 
   if (!messages && !error) {
     return <div>LOADING...</div>;
@@ -123,6 +125,14 @@ const ExampleMessage: FC<{
   return (
     <p className="border-2 border-black">
       <div>
+        {/**
+         * NOTE: The current API does not return the name of the sender of a message.
+         *
+         * To show the name, either have a seperate API call to get the name,
+         * or edit the current get messages API to also return the sender's name.
+         *
+         * For this example, let's only show the senderId.
+         */}
         {senderId} ({createdAtString}): {body}
       </div>
       {image ? <img src={image} alt="Photo" width="20%" /> : null}
