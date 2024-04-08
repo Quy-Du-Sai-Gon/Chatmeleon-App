@@ -23,11 +23,11 @@ const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
 
   return (
     <div>
-      <ul>
+      <div>
         {messages!.map((msg) => (
           <ExampleMessage key={msg.id} message={msg} />
         ))}
-      </ul>
+      </div>
 
       <ExampleInput
         conversationId={conversationId}

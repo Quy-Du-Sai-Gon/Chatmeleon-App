@@ -9,7 +9,7 @@ export default async function ConversationsLayout({
   return (
     <SocketProvider>
       <Sidebar>
-        <div className="h-full">{children}</div>);
+        <div className="h-full">{children}</div>
       </Sidebar>
     </SocketProvider>
   );
