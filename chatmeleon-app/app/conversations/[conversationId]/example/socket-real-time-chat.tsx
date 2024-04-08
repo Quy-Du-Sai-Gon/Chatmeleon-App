@@ -3,10 +3,11 @@
 import { useSocketWithStates } from "@/app/hook/socket";
 import { useSession } from "next-auth/react";
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ExampleInput from "./socket-real-time-chat/input";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-type Message = {
+export type Message = {
   id: string;
   body?: string;
   image?: string;
@@ -21,69 +22,84 @@ const useMessages = (conversationId: string) => {
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
+  const session = useSession();
+
   const fetchMessages = useCallback(
-    async (abortSignal: AbortSignal, chatToken: string | undefined) => {
+    async (abortSignal: AbortSignal) => {
+      if (session.status !== "authenticated") {
+        throw new Error("Unauthenticated");
+      }
+
+      const { chatToken } = session.data;
+
       const getMessagesURL = `${BACKEND_URL}/conversations/${conversationId}/messages`;
       const pageSize = 100; // fixed page size used for testing, no pagination
 
-      try {
-        const res = await fetch(`${getMessagesURL}?pageSize=${pageSize}`, {
-          method: "GET",
-          signal: abortSignal,
-          headers: chatToken
-            ? {
-                Authorization: `Bearer ${chatToken}`,
-              }
-            : undefined,
-        });
+      const res = await fetch(`${getMessagesURL}?pageSize=${pageSize}`, {
+        method: "GET",
+        signal: abortSignal,
+        headers: {
+          Authorization: `Bearer ${chatToken}`,
+        },
+      });
 
-        if (!res.ok) {
-          throw new Error(await res.text());
-        }
-
-        if (!res.headers.get("Content-Type")?.includes("application/json")) {
-          throw new Error("Expected data");
-        }
-
-        // assume the data are the messages without validating
-        const messages: Message[] = await res.json();
-        setMessages(messages);
-        setError(null);
-      } catch (err) {
-        if ((err as Error).name === "AbortError") return;
-
-        setMessages(null);
-        setError(err as Error);
+      if (!res.ok) {
+        throw new Error(await res.text());
       }
-    },
-    [conversationId]
-  );
 
-  const session = useSession();
-  const chatToken = session.data?.chatToken;
+      if (!res.headers.get("Content-Type")?.includes("application/json")) {
+        throw new Error("Expected data");
+      }
+
+      // assume the data are the messages without validating
+      const messages: Message[] = await res.json();
+
+      return messages;
+    },
+    [conversationId, session.data, session.status]
+  );
 
   const abortCtrlRef = useRef<AbortController | null>(null);
 
   // Fetch the messages as an effect
   useEffect(() => {
+    setMessages(null);
+    setError(null);
+
     if (session.status === "loading") return;
 
     abortCtrlRef.current = new AbortController();
 
-    fetchMessages(abortCtrlRef.current.signal, chatToken);
+    fetchMessages(abortCtrlRef.current.signal)
+      .then((messages) => {
+        setMessages(messages.toReversed());
+        setError(null);
+      })
+      .catch((err: Error) => {
+        if (err.name === "AbortError") return;
+
+        setMessages(null);
+        setError(err);
+      });
 
     return () => {
       abortCtrlRef.current?.abort();
       abortCtrlRef.current = null;
     };
-  }, [chatToken, fetchMessages, session.status]);
+  }, [fetchMessages, session.status]);
+
+  const onNewMessage = useCallback(
+    (msg: Message) => setMessages((msgs) => (msgs ? [...msgs, msg] : [msg])),
+    []
+  );
 
   return useMemo(
     () => ({
       messages,
       error,
+      onNewMessage,
     }),
-    [messages, error]
+    [messages, error, onNewMessage]
   );
 };
 
@@ -92,7 +108,7 @@ const useMessages = (conversationId: string) => {
  */
 const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
   const { socket, id: socketId } = useSocketWithStates();
-  const { messages, error } = useMessages(conversationId);
+  const { messages, error, onNewMessage } = useMessages(conversationId);
 
   if (!messages && !error) {
     return <div>LOADING...</div>;
@@ -104,9 +120,16 @@ const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
 
   return (
     <div>
-      {messages!.map((msg) => (
-        <ExampleMessage key={msg.id} message={msg} />
-      ))}
+      <ul>
+        {messages!.map((msg) => (
+          <ExampleMessage key={msg.id} message={msg} />
+        ))}
+      </ul>
+
+      <ExampleInput
+        conversationId={conversationId}
+        onMessageSent={onNewMessage}
+      />
     </div>
   );
 };
@@ -123,8 +146,8 @@ const ExampleMessage: FC<{
     .toLocaleString();
 
   return (
-    <p className="border-2 border-black">
-      <div>
+    <div className="border-2 border-black">
+      <p>
         {/**
          * NOTE: The current API does not return the name of the sender of a message.
          *
@@ -134,9 +157,9 @@ const ExampleMessage: FC<{
          * For this example, let's only show the senderId.
          */}
         {senderId} ({createdAtString}): {body}
-      </div>
+      </p>
       {image ? <img src={image} alt="Photo" width="20%" /> : null}
-    </p>
+    </div>
   );
 };
 
