@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect, useRef } from "react";
 import ExampleInput from "./input";
 import { Message } from "./types";
 import usePaginatedData from "./data-hook";
@@ -15,20 +15,36 @@ const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
     onNewDatum: onNewMessage,
   } = usePaginatedData<Message>(`/conversations/${conversationId}/messages`);
 
+  const messagesBottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   if (!messages && !error) {
-    return <div>LOADING...</div>;
+    return (
+      <div className="flex flex-col h-screen justify-center items-center italic text-lg">
+        LOADING...
+      </div>
+    );
   }
 
   if (error) {
-    return <div>ERROR: {error.message}</div>;
+    return (
+      <div className="flex flex-col h-screen justify-center items-center text-red-600 font-semibold">
+        ERROR: {error.message}
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div>
+    <div className="flex flex-col h-screen py-6">
+      <div className="overflow-y-auto flex-grow">
         {messages!.map((msg) => (
           <ExampleMessage key={msg.id} message={msg} />
         ))}
+
+        <div ref={messagesBottomRef} />
       </div>
 
       <ExampleInput

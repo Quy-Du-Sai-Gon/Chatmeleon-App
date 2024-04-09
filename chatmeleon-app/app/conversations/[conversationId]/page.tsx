@@ -7,11 +7,10 @@ const Conversations = () => {
   const { conversationId } = useConversations();
 
   return (
-    <div className="hidden lg:block lg:pl-80  h-full">
+    <div className="hidden lg:block lg:pl-80">
       <div
         className=" 
         px-4
-        py-10
         sm:px-6
         lg:px-8
         h-auto
