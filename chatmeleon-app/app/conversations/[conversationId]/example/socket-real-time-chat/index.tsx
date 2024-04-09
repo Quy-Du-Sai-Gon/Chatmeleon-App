@@ -23,15 +23,15 @@ const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
 
   if (!messages && !error) {
     return (
-      <div className="flex flex-col h-screen justify-center items-center italic text-lg">
-        LOADING...
+      <div className="flex flex-col h-screen justify-center items-center italic text-lg text-center">
+        LOADING MESSAGES...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col h-screen justify-center items-center text-red-600 font-semibold">
+      <div className="flex flex-col h-screen justify-center items-center text-red-600 font-semibold text-center">
         ERROR: {error.message}
       </div>
     );
