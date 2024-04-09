@@ -1,17 +1,19 @@
 "use client";
 
-import { useSocketWithStates } from "@/app/hook/socket";
 import { FC } from "react";
 import ExampleInput from "./input";
 import { Message } from "./types";
-import useMessages from "./useMessages";
+import usePaginatedData from "./data-hook";
 
 /**
  * An example socket real-time chat component.
  */
 const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
-  const { socket, id: socketId } = useSocketWithStates();
-  const { messages, error, onNewMessage } = useMessages(conversationId);
+  const {
+    data: messages,
+    error,
+    onNewDatum: onNewMessage,
+  } = usePaginatedData<Message>(`/conversations/${conversationId}/messages`);
 
   if (!messages && !error) {
     return <div>LOADING...</div>;

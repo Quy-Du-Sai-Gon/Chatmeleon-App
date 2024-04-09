@@ -2,20 +2,20 @@
 
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Message } from "./types";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 /**
- * Get messages of a conversation.
+ * Fetch and return paginated data from an endpoint of the API back-end. Used to
+ * fetch conversations and messages list.
  */
-const useMessages = (conversationId: string) => {
-  const [messages, setMessages] = useState<Message[] | null>(null);
+const usePaginatedData = <T>(endpoint: string) => {
+  const [data, setData] = useState<T[] | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const session = useSession();
 
-  const fetchMessages = useCallback(
+  const fetchData = useCallback(
     async (abortSignal: AbortSignal) => {
       if (session.status !== "authenticated") {
         throw new Error("Unauthenticated");
@@ -23,10 +23,11 @@ const useMessages = (conversationId: string) => {
 
       const { chatToken } = session.data;
 
-      const getMessagesURL = `${BACKEND_URL}/conversations/${conversationId}/messages`;
-      const pageSize = 100; // fixed page size used for testing, no pagination
+      const fetchUrl = new URL(endpoint, BACKEND_URL);
+      fetchUrl.searchParams.set("pageSize", String(100));
+      // fixed page size used for testing, no pagination
 
-      const res = await fetch(`${getMessagesURL}?pageSize=${pageSize}`, {
+      const res = await fetch(fetchUrl, {
         method: "GET",
         signal: abortSignal,
         headers: {
@@ -42,34 +43,34 @@ const useMessages = (conversationId: string) => {
         throw new Error("Expected data");
       }
 
-      // assume the data are the messages without validating
-      const messages: Message[] = await res.json();
+      // assume the data are of the expected type without validating
+      const data: T[] = await res.json();
 
-      return messages;
+      return data;
     },
-    [conversationId, session.data, session.status]
+    [endpoint, session.data, session.status]
   );
 
   const abortCtrlRef = useRef<AbortController | null>(null);
 
-  // Fetch the messages as an effect
+  // Fetch the data as an effect
   useEffect(() => {
-    setMessages(null);
+    setData(null);
     setError(null);
 
     if (session.status === "loading") return;
 
     abortCtrlRef.current = new AbortController();
 
-    fetchMessages(abortCtrlRef.current.signal)
-      .then((messages) => {
-        setMessages(messages.toReversed());
+    fetchData(abortCtrlRef.current.signal)
+      .then((data) => {
+        setData(data.toReversed());
         setError(null);
       })
-      .catch((err: Error) => {
+      .catch((err: Error /** Assume type Error without validating */) => {
         if (err.name === "AbortError") return;
 
-        setMessages(null);
+        setData(null);
         setError(err);
       });
 
@@ -77,21 +78,21 @@ const useMessages = (conversationId: string) => {
       abortCtrlRef.current?.abort();
       abortCtrlRef.current = null;
     };
-  }, [fetchMessages, session.status]);
+  }, [fetchData, session.status]);
 
-  const onNewMessage = useCallback(
-    (msg: Message) => setMessages((msgs) => (msgs ? [...msgs, msg] : [msg])),
+  const onNewDatum = useCallback(
+    (datum: T) => setData((data) => (data ? [...data, datum] : [datum])),
     []
   );
 
   return useMemo(
     () => ({
-      messages,
+      data,
       error,
-      onNewMessage,
+      onNewDatum,
     }),
-    [messages, error, onNewMessage]
+    [data, error, onNewDatum]
   );
 };
 
-export default useMessages;
+export default usePaginatedData;
