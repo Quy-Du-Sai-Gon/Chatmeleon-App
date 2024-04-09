@@ -370,8 +370,7 @@ paths:
       parameters:
         - name: name
           in: query
-          description: The string of name that is being searched for.
-          required: true
+          description: The string of name that is being searched for. When this query is empty, it should return a page of friends in alphabetical order with cursor-based pagination.
           schema:
             type: string
         - name: pageSize
