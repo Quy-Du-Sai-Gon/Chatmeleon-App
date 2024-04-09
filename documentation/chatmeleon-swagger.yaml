@@ -549,14 +549,9 @@ components:
           $ref: "#/components/schemas/ObjectId"
           description: Unique identifier for each relationship
         type:
-          type: string
-          enum:
-            - FRIEND
-            - BLOCK
-            - FOLLOWING
-            - PENDING_FRIEND_REQUEST
-            - SENDING_FRIEND_REQUEST
-          description: Type of relation based on the Relationship enum
+          allOf:
+            - $ref: "#/components/schemas/RelationshipType"
+          description: Type of relationship
         createdAt:
           type: string
           format: date-time
@@ -581,7 +576,5 @@ components:
       type: string
       enum:
         - FRIEND
-        - BLOCK
-        - FOLLOWING
         - PENDING_FRIEND_REQUEST
         - SENDING_FRIEND_REQUEST
