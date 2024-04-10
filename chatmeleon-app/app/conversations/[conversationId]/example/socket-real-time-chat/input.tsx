@@ -70,7 +70,7 @@ const ExampleInput: FC<ExampleInputProps> = ({
       )}
       <input
         type="text"
-        className="mt-4 border-2 border-blue-300 disabled:border-gray-400 disabled:text-gray-400"
+        className="mt-4 border-2 border-blue-300 disabled:border-gray-400 disabled:text-gray-400 w-full"
         placeholder="Say something..."
         value={value}
         onChange={(e) => setValue(e.target.value)}

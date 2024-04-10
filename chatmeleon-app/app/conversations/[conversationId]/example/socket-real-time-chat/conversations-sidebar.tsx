@@ -47,13 +47,17 @@ const ExampleConversationsSidebar: FC<ExampleConversationsSidebarProps> = ({
       <div className="text-lg font-bold mb-2">Conversations</div>
 
       <div className="overflow-y-auto flex-grow">
-        {conversations!.map((convo) => (
-          <ExampleConversationItem
-            key={convo.id}
-            conversation={convo}
-            isSelected={convo.id === selectedId}
-          />
-        ))}
+        {conversations!.length === 0 ? (
+          <div className="font-mono">No conversation yet 😔</div>
+        ) : (
+          conversations!.map((convo) => (
+            <ExampleConversationItem
+              key={convo.id}
+              conversation={convo}
+              isSelected={convo.id === selectedId}
+            />
+          ))
+        )}
       </div>
     </div>
   );
