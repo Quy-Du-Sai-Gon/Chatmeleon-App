@@ -381,7 +381,7 @@ paths:
             default: 10
         - name: cursor
           in: query
-          description: The ID of the most relevant user of the last messages page. When this query is empty, a default value of null will be used.
+          description: The ID of the last user of the last messages page. When this query is empty, a default value of null will be used.
           schema:
             allOf:
               - $ref: "#/components/schemas/ObjectId"
