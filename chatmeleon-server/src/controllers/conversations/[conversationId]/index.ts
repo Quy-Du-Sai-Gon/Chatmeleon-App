@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import prisma from "../../../libs/prismadb";
-import { ObjectIdString } from "../../../validation";
-import { prunedObject } from "../../../validation/utils";
+import prisma from "@/libs/prismadb";
+import { ObjectIdString } from "@/validation";
+import { prunedObject } from "@/validation/utils";
 
 // Retrieve a specific conversation by ID, ensuring user authorization
 const get = async (req: Request, res: Response) => {

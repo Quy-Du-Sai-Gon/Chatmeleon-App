@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import prisma from "../../libs/prismadb";
-import { ObjectIdString, OptionalObjectIdString } from "../../validation";
-import { prunedObject } from "../../validation/utils";
+import prisma from "@/libs/prismadb";
+import { ObjectIdString, OptionalObjectIdString } from "@/validation";
+import { prunedObject } from "@/validation/utils";
 import { z } from "zod";
 
 // Fetch conversations for the authorized user with pagination

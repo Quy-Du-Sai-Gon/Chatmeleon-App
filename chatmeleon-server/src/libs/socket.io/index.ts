@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { parseCorsOrigin } from "../../utils";
+import { parseCorsOrigin } from "@/utils";
 
 export const io = new Server({
   cors: {

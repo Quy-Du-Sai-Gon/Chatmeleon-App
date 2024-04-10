@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { requireAuth } from "../middlewares/auth";
-import conversations from "../controllers/conversations";
-import conversationWithId from "../controllers/conversations/[conversationId]";
+import { requireAuth } from "@/middlewares/auth";
+import conversations from "@/controllers/conversations";
+import conversationWithId from "@/controllers/conversations/[conversationId]";
 
 export const conversationRoute = Router();
 

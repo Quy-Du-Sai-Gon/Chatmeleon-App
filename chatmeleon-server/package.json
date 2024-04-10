@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && resolve-tspaths",
     "start": "node dist/index.js",
     "dev": "nodemon"
   },
@@ -32,7 +32,9 @@
     "@types/yamljs": "^0.2.33",
     "nodemon": "^3.0.1",
     "prisma": "^5.10.2",
+    "resolve-tspaths": "^0.8.18",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   }
 }

@@ -1,6 +1,6 @@
+import { ChatTokenPayload } from "@/types/auth";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { ChatTokenPayload } from "../types/auth";
 
 /**
  * Middleware function to require authentication for a route.

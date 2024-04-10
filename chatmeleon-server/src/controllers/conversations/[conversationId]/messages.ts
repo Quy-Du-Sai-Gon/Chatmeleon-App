@@ -1,10 +1,10 @@
-import prisma from "../../../libs/prismadb";
+import prisma from "@/libs/prismadb";
 import { Request, Response } from "express";
-import { ObjectIdString, OptionalObjectIdString } from "../../../validation";
-import { prunedObject } from "../../../validation/utils";
+import { ObjectIdString, OptionalObjectIdString } from "@/validation";
+import { prunedObject } from "@/validation/utils";
 import { z } from "zod";
-import { io } from "../../../libs/socket.io";
-import { getActiveSocketId } from "../../../utils";
+import { io } from "@/libs/socket.io";
+import { getActiveSocketId } from "@/utils";
 
 // Fetch messages for the conversation with pagination
 const get = async (req: Request, res: Response) => {
