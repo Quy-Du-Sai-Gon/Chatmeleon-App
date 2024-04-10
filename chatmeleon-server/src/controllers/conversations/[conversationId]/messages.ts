@@ -5,6 +5,7 @@ import { prunedObject } from "@/validation/utils";
 import { z } from "zod";
 import { io } from "@/libs/socket.io";
 import { getActiveSocketId } from "@/utils";
+import { broadcastEvent } from "@/libs/socket.io/service";
 
 // Fetch messages for the conversation with pagination
 const get = async (req: Request, res: Response) => {
@@ -145,15 +146,18 @@ const post = async (req: Request, res: Response) => {
       senderId: string;
     };
 
-    io.to(conversationId)
-      .except(activeSocket!)
-      .emit("new-msg", conversationId, {
+    broadcastEvent(
+      "new-msg",
+      { room: conversationId, sender: activeSocket! },
+      conversationId,
+      {
         id: messageInfo.messageId,
         body,
         image,
         createdAt: messageInfo.createdAt,
         senderId,
-      } satisfies NewMessageEventPayload);
+      } satisfies NewMessageEventPayload
+    );
 
     type ResponseType = { messageId: string; createdAt: Date };
 
