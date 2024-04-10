@@ -85,3 +85,20 @@ export const useSocketWithStates = (): SocketWithStates => {
 
   return socketWithStates;
 };
+
+export const useSocketEventListener = (
+  event: string,
+  listener: (...args: any[]) => void
+) => {
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on(event, listener);
+
+    return () => {
+      socket.off(event, listener);
+    };
+  }, [event, listener, socket]);
+};

@@ -1,26 +1,42 @@
 "use client";
 
-import { FC, useEffect, useRef } from "react";
+import { FC, useCallback, useEffect, useRef } from "react";
 import ExampleInput from "./input";
 import { Message } from "./types";
 import usePaginatedData from "./data-hook";
+import { useSocketEventListener } from "@/app/hook/socket";
 
 /**
  * An example socket real-time chat component.
  */
 const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
+  // fetch message data on mount
   const {
     data: messages,
     error,
     onNewDatum: onNewMessage,
   } = usePaginatedData<Message>(`/conversations/${conversationId}/messages`);
 
+  // real-time new message reception
+  const onNewSocketMessage = useCallback(
+    (newMsgConvo: string, msg: Message) => {
+      if (newMsgConvo !== conversationId) return;
+
+      onNewMessage(msg);
+    },
+    [conversationId, onNewMessage]
+  );
+
+  useSocketEventListener("new-msg", onNewSocketMessage);
+
+  // auto scroll to bottom
   const messagesBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // page rendering
   if (!messages && !error) {
     return (
       <div className="flex flex-col h-screen justify-center items-center italic text-lg text-center">
