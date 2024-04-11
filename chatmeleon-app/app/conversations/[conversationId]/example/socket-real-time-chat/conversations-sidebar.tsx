@@ -1,4 +1,6 @@
-import { FC, useCallback, useEffect, useRef } from "react";
+"use client";
+
+import { FC, useEffect, useRef } from "react";
 import usePaginatedData from "./data-hook";
 import Link from "next/link";
 import { useSocketEventListener } from "@/app/hook/socket";
