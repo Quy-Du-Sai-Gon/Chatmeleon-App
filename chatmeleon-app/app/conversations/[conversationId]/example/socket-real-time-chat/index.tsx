@@ -5,6 +5,7 @@ import ExampleInput from "./input";
 import { Message } from "./types";
 import usePaginatedData from "./data-hook";
 import { useSocketEventListener } from "@/app/hook/socket";
+import { useSession } from "next-auth/react";
 
 /**
  * An example socket real-time chat component.
@@ -16,6 +17,9 @@ const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
     error,
     onNewDatum: onNewMessage,
   } = usePaginatedData<Message>(`/conversations/${conversationId}/messages`);
+
+  const session = useSession();
+  const userId = session.data?.user.id;
 
   // real-time new message reception
   const onNewSocketMessage = useCallback(
@@ -57,7 +61,11 @@ const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
     <div className="flex flex-col h-screen py-6">
       <div className="overflow-y-auto flex-grow">
         {messages!.map((msg) => (
-          <ExampleMessage key={msg.id} message={msg} />
+          <ExampleMessage
+            key={msg.id}
+            message={msg}
+            isSender={msg.senderId === userId}
+          />
         ))}
 
         <div ref={messagesBottomRef} />
@@ -76,14 +84,15 @@ const ExampleSocketChat = ({ conversationId }: { conversationId: string }) => {
  */
 const ExampleMessage: FC<{
   message: Message;
-}> = ({ message: { body, createdAt, senderId, image } }) => {
+  isSender?: boolean;
+}> = ({ message: { body, createdAt, senderId, image }, isSender }) => {
   const createdAtString = new Date(createdAt)
     // Data from json response without validation so could be string.
     // Call `new Date()` to convert.
     .toLocaleString();
 
   return (
-    <div className="border-2 border-black">
+    <div className={`border-2 border-black ${isSender ? "bg-blue-300" : ""}`}>
       <p>
         {/**
          * NOTE: The current API does not return the name of the sender of a message.
