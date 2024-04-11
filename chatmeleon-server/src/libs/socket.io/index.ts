@@ -1,15 +1,13 @@
 import { Server } from "socket.io";
 import { parseCorsOrigin } from "@/utils";
+import { SocketServer } from "./types";
 
-export const io = new Server({
+export const io: SocketServer = new Server({
   cors: {
     origin: parseCorsOrigin(process.env.SOCKET_IO_CORS_ORIGINS),
   },
 });
 
-io.on("connection", (socket) => {
-  console.log(`${socket.id} connected`);
-  socket.on("disconnect", () => {
-    console.log(`${socket.id} disconnected`);
-  });
-});
+import "./middlewares/auth";
+
+import "./listeners/connection-log";

@@ -1,7 +1,9 @@
 "use client";
 
+import { Socket } from "@/types/socket";
+import { useSession } from "next-auth/react";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ManagerOptions, Socket, SocketOptions, io } from "socket.io-client";
+import { ManagerOptions, SocketOptions, io } from "socket.io-client";
 
 /**
  * Context for a Socket.IO's Socket.
@@ -40,15 +42,68 @@ export function SocketProvider({
 }: SocketProviderProps) {
   const [socket, setSocket] = useState<Socket | null>(null);
 
+  const session = useSession();
+  const chatToken = session.data?.chatToken;
+
   useEffect(() => {
-    if (uri !== undefined) {
-      setSocket(io(uri, options));
-    } else {
-      setSocket(io(options));
+    if (!chatToken) {
+      setSocket(null);
+      return;
     }
-  }, [uri, options]);
+
+    const opts = { auth: { chatToken }, ...options } satisfies typeof options;
+
+    if (uri !== undefined) {
+      setSocket(io(uri, opts));
+    } else {
+      setSocket(io(opts));
+    }
+  }, [uri, options, chatToken]);
+
+  // clean up
+  useEffect(() => {
+    if (!socket) return;
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
+
+  useDefaultSocketLogging(socket);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
   );
 }
+
+const useDefaultSocketLogging = (socket: Socket | null) => {
+  useEffect(() => {
+    if (!socket) return;
+
+    const onConnect = () => {
+      if (socket.recovered) {
+        console.log(`Socket "${socket.id}" recovered connection.`);
+      } else {
+        console.log(`Socket connected with id "${socket.id}".`);
+      }
+    };
+
+    const onConnectError = (error: Error) => {
+      console.error(`Socket connect error: "${error}".`);
+    };
+
+    const onDisconnect = (reason: string) => {
+      console.log(`Socket disconnected because "${reason}"`);
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("connect_error", onConnectError);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("connect_error", onConnectError);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, [socket]);
+};
