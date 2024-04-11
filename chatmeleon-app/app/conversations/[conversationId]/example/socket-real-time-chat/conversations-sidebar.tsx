@@ -1,6 +1,7 @@
-import { FC, useEffect, useRef } from "react";
+import { FC, useCallback, useEffect, useRef } from "react";
 import usePaginatedData from "./data-hook";
 import Link from "next/link";
+import { useSocketEventListener } from "@/app/hook/socket";
 
 export type Conversation = {
   id: string;
@@ -20,12 +21,17 @@ interface ExampleConversationsSidebarProps {
 const ExampleConversationsSidebar: FC<ExampleConversationsSidebarProps> = ({
   selectedId,
 }) => {
+  // fetch conversations on mount
   const {
     data: conversations,
     error,
     onNewDatum: onNewConversation,
   } = usePaginatedData<Conversation>("/conversations");
 
+  // real-time new conversation update
+  useSocketEventListener("new-cnv", onNewConversation);
+
+  // page rendering
   if (!conversations && !error) {
     return (
       <div className="flex flex-col h-screen justify-center items-center italic text-lg text-center">

@@ -3,6 +3,12 @@ import prisma from "@/libs/prismadb";
 import { ObjectIdString, OptionalObjectIdString } from "@/validation";
 import { prunedObject } from "@/validation/utils";
 import { z } from "zod";
+import {
+  ConversationRoom,
+  broadcastEvent,
+  socketsJoin,
+} from "@/libs/socket.io/service";
+import { io } from "@/libs/socket.io";
 
 // Fetch conversations for the authorized user with pagination
 const get = async (req: Request, res: Response) => {
@@ -128,17 +134,76 @@ const post = async (req: Request, res: Response) => {
       return {
         conversationId: newConversation.id,
         messageId: createdMessage.id,
-        createdAt: newConversation.createdAt,
+        cnvCreatedAt: newConversation.createdAt,
+        msgCreatedAt: createdMessage.createdAt,
       };
     });
 
+    // Socket events
+    const { conversationId, cnvCreatedAt, messageId, msgCreatedAt } =
+      conversationAndMessageInfo;
+
+    socketsJoin([senderId, relatedUserId], ConversationRoom(conversationId));
+
+    // New conversation event
+    type NewConversationEventPayload = {
+      id: string;
+      lastMessageId: string;
+      name?: string;
+      groupAvatar?: string;
+      isGroup: boolean;
+    };
+
+    broadcastEvent(
+      "new-cnv",
+      {
+        room: ConversationRoom(conversationId),
+        sender: req.chatToken!,
+      },
+      {
+        id: conversationId,
+        lastMessageId: messageId,
+        isGroup: false,
+      } satisfies NewConversationEventPayload
+    );
+
+    // New message event
+    type NewMessageEventPayload = {
+      id: string;
+      body?: string;
+      image?: string;
+      createdAt: Date;
+      senderId: string;
+    };
+
+    broadcastEvent(
+      "new-msg",
+      {
+        room: ConversationRoom(conversationId),
+        sender: req.chatToken!,
+      },
+      conversationId,
+      {
+        id: messageId,
+        body,
+        image,
+        createdAt: msgCreatedAt,
+        senderId,
+      } satisfies NewMessageEventPayload
+    );
+
+    // API Response
     type ResponseType = {
       conversationId: string;
       messageId: string;
       createdAt: Date;
     };
 
-    return res.json(conversationAndMessageInfo satisfies ResponseType);
+    return res.json({
+      conversationId,
+      messageId,
+      createdAt: cnvCreatedAt,
+    } satisfies ResponseType);
   } catch (error) {
     // Log the error and send a 403 Unauthorized response
     console.error("Transaction failed:", error);

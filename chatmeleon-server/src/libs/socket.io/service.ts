@@ -23,3 +23,15 @@ export const broadcastEvent = (
  */
 export const ConversationRoom = (conversationId: string) =>
   `cnv:${conversationId}`;
+
+/**
+ * Make the sockets join the room.
+ * @param socket The unique room to identify the socket.
+ * @param room The room to join.
+ */
+export const socketsJoin = (
+  socket: string | string[],
+  room: string | string[]
+) => {
+  io.in(socket).socketsJoin(room);
+};
