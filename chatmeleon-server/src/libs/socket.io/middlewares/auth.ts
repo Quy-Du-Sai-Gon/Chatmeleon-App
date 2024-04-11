@@ -14,5 +14,7 @@ io.use(async (socket, next) => {
   }
 
   socket.data.auth = payload;
+  socket.data.chatToken = result.data;
+
   next();
 });

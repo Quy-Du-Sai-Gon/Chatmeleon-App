@@ -3,7 +3,6 @@
 import { FC, useCallback, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Message } from "./types";
-import { useSocketWithStates } from "@/app/hook/socket";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -20,7 +19,6 @@ const ExampleInput: FC<ExampleInputProps> = ({
   const [error, setError] = useState<Error | null>(null);
 
   const session = useSession();
-  const { id: socketId } = useSocketWithStates();
 
   const postMessage = useCallback(
     async (message: string) => {
@@ -41,7 +39,6 @@ const ExampleInput: FC<ExampleInputProps> = ({
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${chatToken}`,
-          ...(socketId && { "X-Active-Socket": socketId }),
         },
       });
 
@@ -63,7 +60,7 @@ const ExampleInput: FC<ExampleInputProps> = ({
         senderId: userId,
       });
     },
-    [conversationId, onMessageSent, session.data, session.status, socketId]
+    [conversationId, onMessageSent, session.data, session.status]
   );
 
   return (

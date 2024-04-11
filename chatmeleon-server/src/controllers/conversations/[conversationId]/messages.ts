@@ -3,8 +3,6 @@ import { Request, Response } from "express";
 import { ObjectIdString, OptionalObjectIdString } from "@/validation";
 import { prunedObject } from "@/validation/utils";
 import { z } from "zod";
-import { io } from "@/libs/socket.io";
-import { getActiveSocketId } from "@/utils";
 import { ConversationRoom, broadcastEvent } from "@/libs/socket.io/service";
 
 // Fetch messages for the conversation with pagination
@@ -89,7 +87,6 @@ const post = async (req: Request, res: Response) => {
   const conversationId = ObjectIdString.parse(req.params.conversationId);
   const { body, image } = postRequestBody.parse(req.body);
   const { userId: senderId } = req.auth!;
-  const activeSocket = getActiveSocketId(req);
 
   try {
     const messageInfo = await prisma.$transaction(async (tx) => {
@@ -148,7 +145,7 @@ const post = async (req: Request, res: Response) => {
 
     broadcastEvent(
       "new-msg",
-      { room: ConversationRoom(conversationId), sender: activeSocket! },
+      { room: ConversationRoom(conversationId), sender: req.chatToken! },
       conversationId,
       {
         id: messageInfo.messageId,

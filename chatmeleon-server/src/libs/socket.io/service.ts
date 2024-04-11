@@ -8,7 +8,7 @@ export const broadcastEvent = (
   info: {
     /** The socket.io room to broadcast to. */
     room: string | string[];
-    /** The sender's socket id, for excluding the sender from receiving the event. */
+    /** The sender's unique room, for excluding the sender from receiving the event. */
     sender: string;
   },
   ...payload: any[]

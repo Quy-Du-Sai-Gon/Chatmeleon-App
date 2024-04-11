@@ -37,6 +37,8 @@ export const requireAuth = async (
   }
 
   req.auth = payload;
+  req.chatToken = chatToken;
+
   next();
 };
 

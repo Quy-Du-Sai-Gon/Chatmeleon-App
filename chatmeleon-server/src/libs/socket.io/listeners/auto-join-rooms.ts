@@ -3,6 +3,9 @@ import { io } from "..";
 import { ConversationRoom } from "../service";
 
 io.on("connection", async (socket) => {
+  // join unique rooms with our credentials
+  socket.join([socket.data.chatToken, socket.data.auth.userId]);
+
   const conversations = await prisma.conversation.findMany({
     where: {
       userIds: {

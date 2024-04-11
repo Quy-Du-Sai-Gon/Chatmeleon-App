@@ -4,6 +4,7 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 export interface SocketData {
   auth: ChatTokenPayload;
+  chatToken: string;
 }
 
 export type SocketServer = Server<
