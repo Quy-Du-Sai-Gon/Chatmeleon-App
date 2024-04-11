@@ -26,7 +26,7 @@ const ExampleConversationsSidebar: FC<ExampleConversationsSidebarProps> = ({
     data: conversations,
     error,
     onNewDatum: onNewConversation,
-  } = usePaginatedData<Conversation>("/conversations");
+  } = usePaginatedData<Conversation>("/conversations", "desc");
 
   // real-time new conversation update
   useSocketEventListener("new-cnv", onNewConversation);

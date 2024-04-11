@@ -9,7 +9,10 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
  * Fetch and return paginated data from an endpoint of the API back-end. Used to
  * fetch conversations and messages list.
  */
-const usePaginatedData = <T>(endpoint: string) => {
+const usePaginatedData = <T>(
+  endpoint: string,
+  order: "asc" | "desc" = "asc"
+) => {
   const [data, setData] = useState<T[] | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
@@ -64,7 +67,7 @@ const usePaginatedData = <T>(endpoint: string) => {
 
     fetchData(abortCtrlRef.current.signal)
       .then((data) => {
-        setData(data.toReversed());
+        setData(order === "asc" ? data.toReversed() : data);
         setError(null);
       })
       .catch((err: Error /** Assume type Error without validating */) => {
@@ -78,11 +81,17 @@ const usePaginatedData = <T>(endpoint: string) => {
       abortCtrlRef.current?.abort();
       abortCtrlRef.current = null;
     };
-  }, [fetchData, session.status]);
+  }, [fetchData, order, session.status]);
 
   const onNewDatum = useCallback(
-    (datum: T) => setData((data) => (data ? [...data, datum] : [datum])),
-    []
+    (datum: T) =>
+      setData((data) => {
+        if (!data) {
+          return [datum];
+        }
+        return order === "asc" ? [...data, datum] : [datum, ...data];
+      }),
+    [order]
   );
 
   return useMemo(
