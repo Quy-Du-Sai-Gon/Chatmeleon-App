@@ -11,3 +11,4 @@ export const io: SocketServer = new Server({
 import "./middlewares/auth";
 
 import "./listeners/connection-log";
+import "./listeners/auto-join-rooms";

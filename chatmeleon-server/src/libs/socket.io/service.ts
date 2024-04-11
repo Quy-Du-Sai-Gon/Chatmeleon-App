@@ -17,3 +17,9 @@ export const broadcastEvent = (
     .except(info.sender)
     .emit(event, ...payload);
 };
+
+/**
+ * Returns the room to receive updates from a conversation.
+ */
+export const ConversationRoom = (conversationId: string) =>
+  `cnv:${conversationId}`;

@@ -5,7 +5,7 @@ import { prunedObject } from "@/validation/utils";
 import { z } from "zod";
 import { io } from "@/libs/socket.io";
 import { getActiveSocketId } from "@/utils";
-import { broadcastEvent } from "@/libs/socket.io/service";
+import { ConversationRoom, broadcastEvent } from "@/libs/socket.io/service";
 
 // Fetch messages for the conversation with pagination
 const get = async (req: Request, res: Response) => {
@@ -148,7 +148,7 @@ const post = async (req: Request, res: Response) => {
 
     broadcastEvent(
       "new-msg",
-      { room: conversationId, sender: activeSocket! },
+      { room: ConversationRoom(conversationId), sender: activeSocket! },
       conversationId,
       {
         id: messageInfo.messageId,
