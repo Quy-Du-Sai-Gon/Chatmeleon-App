@@ -2,6 +2,8 @@ import { ChatTokenPayload as ChatTokenPayloadType } from "@chatmeleon-app/types/
 export { ChatTokenPayloadType };
 
 import { z } from "zod";
-import { ObjectIdString } from "../validation";
+import { ObjectIdString } from "@/validation";
 
 export const ChatTokenPayload = z.object({ userId: ObjectIdString });
+
+export type ChatTokenPayload = z.infer<typeof ChatTokenPayload>;

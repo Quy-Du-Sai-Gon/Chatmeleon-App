@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { DefaultSession } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
@@ -7,7 +7,8 @@ declare module "next-auth" {
    */
   interface Session {
     /** The session's auth token for Chatmeleon Node.js backend. */
-    chatToken?: string;
+    chatToken: string;
+    user: { id: string } & DefaultSession["user"];
   }
 }
 
@@ -15,6 +16,7 @@ declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
   interface JWT {
     /** The session's auth token for Chatmeleon Node.js backend. */
-    chatToken?: string;
+    chatToken: string;
+    sub: string;
   }
 }

@@ -1,4 +1,4 @@
-import prisma from "../libs/prismadb";
+import prisma from "@/libs/prismadb";
 import { Request, Response } from "express";
 
 const getUserById = async (req: Request, res: Response) => {
