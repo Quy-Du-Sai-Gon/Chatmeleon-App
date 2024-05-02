@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "../middlewares/auth";
-import messagesWithConversationId from "../controllers/conversations/[conversationId]/messages";
+import { requireAuth } from "@/middlewares/auth";
+import messagesWithConversationId from "@/controllers/conversations/[conversationId]/messages";
 
 export const messageRoute = Router();
 
