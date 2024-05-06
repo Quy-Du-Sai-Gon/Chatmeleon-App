@@ -1,9 +1,4 @@
-import {
-  Nullish,
-  OmitType,
-  OmitTypeMayBe,
-  PickTypeMayBe,
-} from "../types/utils";
+import { Nullish, OmitType, OmitTypeMayBe, PickTypeMayBe } from "@/types/utils";
 
 /**
  * Construct a type with the properties of T, making nullable properties optional, excluding null values, and omitting properties that can only be null or undefined.

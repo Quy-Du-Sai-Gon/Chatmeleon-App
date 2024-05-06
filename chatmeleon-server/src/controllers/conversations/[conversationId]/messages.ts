@@ -1,8 +1,9 @@
-import prisma from "../../../libs/prismadb";
+import prisma from "@/libs/prismadb";
 import { Request, Response } from "express";
-import { ObjectIdString, OptionalObjectIdString } from "../../../validation";
-import { prunedObject } from "../../../validation/utils";
+import { ObjectIdString, OptionalObjectIdString } from "@/validation";
+import { prunedObject } from "@/validation/utils";
 import { z } from "zod";
+import { ConversationRoom, broadcastEvent } from "@/libs/socket.io/service";
 
 // Fetch messages for the conversation with pagination
 const get = async (req: Request, res: Response) => {
@@ -133,6 +134,27 @@ const post = async (req: Request, res: Response) => {
         createdAt: newMessage.createdAt,
       };
     });
+
+    type NewMessageEventPayload = {
+      id: string;
+      body?: string;
+      image?: string;
+      createdAt: Date;
+      senderId: string;
+    };
+
+    broadcastEvent(
+      "new-msg",
+      { room: ConversationRoom(conversationId), sender: req.chatToken! },
+      conversationId,
+      {
+        id: messageInfo.messageId,
+        body,
+        image,
+        createdAt: messageInfo.createdAt,
+        senderId,
+      } satisfies NewMessageEventPayload
+    );
 
     type ResponseType = { messageId: string; createdAt: Date };
 

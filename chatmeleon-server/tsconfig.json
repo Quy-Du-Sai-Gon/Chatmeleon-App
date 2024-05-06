@@ -8,10 +8,12 @@
     "rootDir": "./src",
     "strict": true,
     "paths": {
-      "@chatmeleon-app/*": ["../chatmeleon-app/*"]
+      "@chatmeleon-app/*": ["../chatmeleon-app/*"],
+      "@/*": ["./src/*"]
     }
   },
   "ts-node": {
-    "files": true
+    "files": true,
+    "require": ["tsconfig-paths/register"]
   }
 }

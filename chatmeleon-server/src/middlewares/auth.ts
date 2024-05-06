@@ -1,6 +1,7 @@
+import { ChatTokenPayload } from "@/types/auth";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { ChatTokenPayload } from "../types/auth";
+import { ZodError } from "zod";
 
 /**
  * Middleware function to require authentication for a route.
@@ -29,19 +30,38 @@ export const requireAuth = async (
   }
 
   const chatToken = authHeader.substring("Bearer ".length);
+  const { error, payload } = await verifyChatToken(chatToken);
 
-  jwt.verify(chatToken, process.env.CHAT_TOKEN_SECRET!, (err, decoded) => {
-    if (err) {
-      return resUnauthorized();
-    }
+  if (error) {
+    return resUnauthorized();
+  }
 
-    const result = ChatTokenPayload.safeParse(decoded);
-    if (!result.success) {
-      console.error(result.error);
-      return resUnauthorized();
-    }
+  req.auth = payload;
+  req.chatToken = chatToken;
 
-    req.auth = result.data;
-    next();
-  });
+  next();
 };
+
+export type VerifyChatTokenResult =
+  | { error: null; payload: ChatTokenPayload }
+  | { error: jwt.VerifyErrors | ZodError<ChatTokenPayload>; payload: null };
+
+/**
+ * Verify that the ChatToken is valid, i.e., signed by the auth server and is of
+ * the correct format.
+ */
+export const verifyChatToken = (chatToken: string) =>
+  new Promise<VerifyChatTokenResult>((resolve) =>
+    jwt.verify(chatToken, process.env.CHAT_TOKEN_SECRET!, (err, decoded) => {
+      if (err) {
+        return resolve({ error: err, payload: null });
+      }
+
+      const result = ChatTokenPayload.safeParse(decoded);
+      if (!result.success) {
+        return resolve({ error: result.error, payload: null });
+      }
+
+      resolve({ error: null, payload: result.data });
+    })
+  );
