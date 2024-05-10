@@ -17,10 +17,14 @@ import errorMiddleware from "./middlewares/error-handler";
 import { messageRoute } from "./routes/message-route";
 import { conversationRoute } from "./routes/conversation-route";
 import { userRoute } from "./routes/user-route";
+import { userRelationshipRoute } from "./routes/user-relationship-route";
+import { socialRoute } from "./routes/social-route";
+
 import { createServer } from "http";
 import { io } from "./libs/socket.io";
 import cors from "cors";
 import { parseCorsOrigin } from "./utils";
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -44,7 +48,9 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use(messageRoute);
 app.use(conversationRoute);
+app.use(socialRoute);
 app.use(userRoute);
+app.use(userRelationshipRoute);
 
 app.use(errorMiddleware);
 

@@ -11,20 +11,21 @@ datasource db {
 
 // Define the User model, representing individuals using the application
 model User {
-    id               String         @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each user
+    id               String              @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each user
     name             String? // Optional name for the user
-    email            String?        @unique // User's email, must be unique
+    email            String?             @unique // User's email, must be unique
     emailVerified    DateTime? // Tracks when the user's email was verified
     image            String? // Optional image associated with the user
     hashedPassword   String? // Securely stores the user's password hash
-    createdAt        DateTime       @default(now()) // Date and time when the user was created
-    updatedAt        DateTime       @updatedAt // Date and time when the user was last updated
+    createdAt        DateTime            @default(now()) // Date and time when the user was created
+    updatedAt        DateTime            @updatedAt // Date and time when the user was last updated
     accounts         Account[] // Accounts connected to the user (e.g., social logins)
-    conversationsIds String[]       @db.ObjectId
-    conversations    Conversation[] @relation(fields: [conversationsIds], references: [id]) // Conversations the user is part of
-    seenMessageIds   String[]       @db.ObjectId
-    seenMessages     Message[]      @relation("Seen", fields: [seenMessageIds], references: [id]) // Messages the user has seen
-    messages         Message[] // Messages sent by the user
+    conversationsIds String[]            @db.ObjectId
+    conversations    Conversation[]      @relation(fields: [conversationsIds], references: [id]) // Conversations the user is part of
+    seenMessageIds   String[]            @db.ObjectId
+    seenMessages     Message[]           @relation("Seen", fields: [seenMessageIds], references: [id]) // Messages the user has seen
+    messages         Message[] // Messages sent by the user 
+    Relationship     User_Relationship[] // Relationship of the user
 }
 
 // Define the Account model, representing external authentication accounts linked to users
@@ -38,10 +39,10 @@ model Account {
     refresh_token     String? @db.String // Refresh token for authentication
     access_token      String? @db.String // Access token for authentication
     expires_at        Int? // Expiration time for access token
-    token_type        String?
-    scope             String?
+    token_type        String? // Type of the token
+    scope             String? // Scope of the token
     id_token          String? @db.String // ID token from the authentication provider
-    session_state     String?
+    session_state     String? // The state session
 
     // Ensures unique combinations of provider and providerAccountId to prevent duplicate accounts
     @@unique([provider, providerAccountId])
@@ -57,7 +58,7 @@ model Conversation {
     isGroup       Boolean    @default(false) // Indicates whether the conversation is a group chat
     groupAvatar   String? // Optional avatar for group conversations
     nicknames     Nickname[] // Nicknames for users within the conversation
-    messagesIds   String[]   @db.ObjectId
+    messagesIds   String[]   @db.ObjectId // Message IDs of all messages in the conversation
     messages      Message[] // Messages within the conversation
     userIds       String[]   @db.ObjectId // User IDs of participants in the conversation
     users         User[]     @relation(fields: [userIds], references: [id]) // Relationship to the users involved
@@ -72,12 +73,33 @@ model Message {
     seenIds        String[]     @db.ObjectId // User IDs of users who have seen the message
     seen           User[]       @relation("Seen", fields: [seenIds], references: [id])
     conversationId String       @db.ObjectId
-    conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade) // The conversation ID that the message is a part of
     senderId       String       @db.ObjectId
-    sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+    sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade) // The user ID that sent the message
 }
 
+// Define the Friendship model
+model User_Relationship {
+    id             String       @id @default(auto()) @map("_id") @db.ObjectId // Unique identifier for each relationship
+    type           Relationship // Type of relation based on the enum Relationship
+    createdAt      DateTime     @default(now()) // Date and time when the relationship was created
+    relatingUserId String       @db.ObjectId
+    relatingUser   User         @relation(fields: [relatingUserId], references: [id]) // The user ID that is the owner of the relationship
+    relatedUserId  String       @db.ObjectId // The ID of the other user
+
+    @@unique([relatingUserId, relatedUserId])
+}
+
+// Define a custom type to represent user nicknames within conversations
 type Nickname {
-    userId   String @db.ObjectId
-    nickname String
+    userId   String @db.ObjectId // User ID of the person with the nickname
+    nickname String // Custom nickname assigned to the user
+}
+
+// Define an enum to represent different types of relationships between users
+enum Relationship {
+    FRIEND // Two users are friends
+    BLOCK // A user has blocked another user
+    PENDING_FRIEND_REQUEST // A user has received a friend request that hasn't been accepted yet
+    SENDING_FRIEND_REQUEST // A user has sent a friend request and is awaiting a response
 }

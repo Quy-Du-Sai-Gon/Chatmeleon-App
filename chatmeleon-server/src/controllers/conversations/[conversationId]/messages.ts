@@ -67,7 +67,7 @@ const get = async (req: Request, res: Response) => {
     return res.json(response satisfies ResponseType); // Send the fetched messages in the response
   } catch (error) {
     // Log the error and send a 403 Unauthorized response
-    console.error("Transaction failed:", error);
+    console.error("Transaction failed -", error);
 
     return res
       .status(403)
@@ -161,7 +161,7 @@ const post = async (req: Request, res: Response) => {
     return res.json(messageInfo satisfies ResponseType);
   } catch (error) {
     // Log the error and send a 403 Unauthorized response
-    console.error("Transaction failed:", error);
+    console.error("Transaction failed -", error);
 
     return res
       .status(403)
