@@ -1,7 +1,7 @@
-import Sidebar from "../components/sidebars/Sidebar";
+import Sidebar from "./components/sidebars/Sidebar";
 import { SocketProvider } from "../context/SocketContext";
 
-export default async function ConversationsLayout({
+export default async function CoreLayout({
   children,
 }: {
   children: React.ReactNode;
