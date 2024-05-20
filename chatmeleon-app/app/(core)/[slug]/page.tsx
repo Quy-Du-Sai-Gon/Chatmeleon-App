@@ -1,7 +1,5 @@
+import EmptyState from "./components/EmptyState";
+
 export default function Home() {
-  return (
-    <div>
-      <p>Chatmeleon page</p>
-    </div>
-  );
+  return <div></div>;
 }

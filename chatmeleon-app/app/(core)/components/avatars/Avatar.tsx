@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import StatusBubble from "../status/StatusBubble";
 interface AvatarProps {
-  user?: User;
+  user?: any;
 }
 
 const Avatar: React.FC<AvatarProps> = ({ user }) => {
