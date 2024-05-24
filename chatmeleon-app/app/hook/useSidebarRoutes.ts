@@ -5,6 +5,7 @@ import useConversations from "./useConversations";
 
 import { HiChat } from "react-icons/hi";
 import { HiArrowLeftOnRectangle, HiUsers } from "react-icons/hi2";
+import { RouteKeys } from "@/types/route-key.d";
 
 const useSidebarRoutes = () => {
   const { pathname } = useParams();
@@ -14,13 +15,13 @@ const useSidebarRoutes = () => {
     () => [
       {
         label: "Chat",
-        href: "/conversations",
+        href: `/${RouteKeys.Conversations}`,
         icon: HiChat,
         active: pathname == "/conversations" || !!conversationId,
       },
       {
         label: "People",
-        href: "/people",
+        href: `/${RouteKeys.People}`,
         icon: HiUsers,
         active: pathname == "/people",
       },
