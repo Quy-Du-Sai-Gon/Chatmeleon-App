@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Conversation } from "@/types/conversation";
 import UserList from "./UserList";
 import ConversationList from "./ConversationList";

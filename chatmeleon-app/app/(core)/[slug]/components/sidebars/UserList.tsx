@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { QueryClient } from "react-query";
+import LoadingUserList from "../loadings/LoadingUserList";
 const queryClient = new QueryClient();
 interface UserListProps {
   id: string;
@@ -40,9 +41,11 @@ const fetchPeopleUsers = async (
 };
 
 const UserList: React.FC<UserListProps> = ({ id }) => {
+  const session = useSession();
+  const chatToken = session.data?.chatToken;
   const { data: userData } = useQuery(
     [id],
-    async () => await fetchPeopleUsers(useSession().data?.chatToken, 1),
+    async () => await fetchPeopleUsers(chatToken, 1),
     {
       staleTime: 1000 * 60 * 5,
     }
@@ -50,7 +53,7 @@ const UserList: React.FC<UserListProps> = ({ id }) => {
 
   if (!userData) {
     // Display a loading state or placeholder while userData is undefined
-    return <div>Loading...</div>;
+    return <LoadingUserList />;
   }
 
   return (
