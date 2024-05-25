@@ -14,10 +14,9 @@ interface UserListProps {
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const fetchPeopleUsers = async (
-  chatToken: string | undefined,
-  pageNumber: number
+  chatToken: string | undefined
 ): Promise<PeopleUser[]> => {
-  const getMessageURL = `${BACKEND_URL}/users/search?pageSize=10&pageNumber=${pageNumber}`;
+  const getMessageURL = `${BACKEND_URL}/users/search?pageSize=10`;
 
   try {
     const res = await fetch(getMessageURL, {
@@ -45,7 +44,7 @@ const UserList: React.FC<UserListProps> = ({ id }) => {
   const chatToken = session.data?.chatToken;
   const { data: userData } = useQuery(
     [id],
-    async () => await fetchPeopleUsers(chatToken, 1),
+    async () => await fetchPeopleUsers(chatToken),
     {
       staleTime: 1000 * 60 * 5,
     }

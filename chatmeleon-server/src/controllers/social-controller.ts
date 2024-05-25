@@ -1,7 +1,6 @@
 import { Relationship } from "@prisma/client";
 import prisma from "../libs/prismadb";
 import { Request, Response } from "express";
-import { CLIENT_RENEG_LIMIT } from "tls";
 
 const getUsersByNameWithPagination = async (req: Request, res: Response) => {
   const { userId } = req.auth!;
@@ -27,76 +26,72 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
   }
 
   try {
-    const results = await prisma.$transaction(async (tx) => {
-      const users = await tx.user.findMany({
-        where: {
-          name: {
-            contains: name as string,
-          },
+    const users = await prisma.user.findMany({
+      where: {
+        name: {
+          contains: name as string,
         },
-        select: {
-          id: true,
-          name: true,
-          image: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+      },
+    });
+
+    const promises = users.map(async (user) => {
+      const relationship = await prisma.user_Relationship.findFirst({
+        where: {
+          relatingUserId: userId,
+          relatedUserId: user.id,
+          type: filter,
         },
       });
 
-      const promises = users.map(async (user) => {
-        const relationship = await tx.user_Relationship.findFirst({
+      let originalConversationId;
+      if (user.id !== userId) {
+        originalConversationId = await prisma.conversation.findFirst({
           where: {
-            relatingUserId: userId,
-            relatedUserId: user.id,
-            type: filter,
+            AND: [
+              { isGroup: false },
+              { userIds: { hasEvery: [user.id, userId] } },
+            ],
           },
         });
+      }
 
-        if (filter && !relationship) {
-          return;
-        }
+      const outData = {
+        userId: user.id,
+        name: user.name,
+        image: user.image,
+        relationshipType: relationship?.type,
+        originalConversationId: originalConversationId?.id,
+      };
 
-        let originalConversationId;
+      return outData;
+    });
 
-        if (user.id !== userId) {
-          originalConversationId = await tx.conversation.findFirst({
-            where: {
-              AND: [
-                { isGroup: false },
-                { userIds: { hasEvery: [user.id, userId] } },
-              ],
-            },
-          });
-        }
+    const paginatedResults = await Promise.all(promises);
+    const filterPaginatedResults = paginatedResults.filter(
+      (item) => item !== undefined
+    );
+    filterPaginatedResults.sort((a, b) => a!.userId.localeCompare(b!.userId));
 
-        const outData = {
-          userId: user.id,
-          name: user.name,
-          image: user.image,
-          relationshipType: relationship?.type,
-          originalConversationId: originalConversationId?.id,
-        };
-        return outData;
-      });
-      const paginatedResults = await Promise.all(promises);
-      const filterPaginatedResults = paginatedResults.filter(
-        (item) => item !== undefined
-      );
+    const startIndex = cursor
+      ? filterPaginatedResults.findIndex((item) => item!.userId === cursor) + 1
+      : 0;
 
-      filterPaginatedResults.sort((a, b) => a!.userId.localeCompare(b!.userId));
-      const startIndex = cursor
-        ? filterPaginatedResults.findIndex((item) => item!.userId === cursor) +
-          1
-        : 0;
-      console.log(filterPaginatedResults);
+    const results = await prisma.$transaction(async (tx) => {
       const currentPageResults = filterPaginatedResults.slice(
         startIndex,
         startIndex + pageSize
       );
       return currentPageResults;
     });
+
     return res.json(results);
   } catch (error) {
     console.error("Transaction failed -", error);
-
     return res
       .status(403)
       .type("text/plain")
@@ -104,6 +99,4 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
   }
 };
 
-export default {
-  getUsersByNameWithPagination,
-};
+export default { getUsersByNameWithPagination };
