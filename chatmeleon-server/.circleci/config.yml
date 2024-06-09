@@ -1,0 +1,29 @@
+version: 2.1
+
+executors:
+  node-executor:
+    docker:
+      - image: circleci/node:latest
+jobs:
+  run-postman-collection:
+    executor: node-executor
+    steps:
+      - checkout
+
+      - run:
+          name: Install Postman CLI
+          command: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - run:
+          name: Postman Login
+          command: postman login --with-api-key $POSTMAN_API_KEY
+
+      - run:
+          name: Run Postman Collection
+          command: postman collection run 33072764-43bf5bbf-5afb-41d1-baf7-63f3c59c0fb9
+
+workflows:
+  version: 2
+  run-tests:
+    jobs:
+      - run-postman-collection
