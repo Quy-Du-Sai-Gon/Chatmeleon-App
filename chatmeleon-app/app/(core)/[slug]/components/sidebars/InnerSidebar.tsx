@@ -10,14 +10,86 @@ import { RouteKeys } from "@/types/route-key.d";
 export default function InnerSidebar() {
   const pathName = usePathname();
   const [conversationData, setConversationData] = useState<Conversation[]>([]);
-  RouteKeys;
   if (pathName.startsWith(`/${RouteKeys.Conversations}`)) {
     return (
-      <ConversationList conversations={conversationData}></ConversationList>
+      <aside
+        className="
+        fixed
+        inset-y-0
+        pb-20
+        lg:pb-0
+        lg:left-20
+        lg:w-80
+        lg:block
+        overflow-y-auto
+        border-r
+        border-gray-200
+        block
+        w-full
+        left-0
+      "
+      >
+        <div className="px-5">
+          <div className="flex-col">
+            <div
+              className="
+              sticky
+              top-0
+              bg-white
+              text-2xl
+              font-bold
+              text-neutral-800
+              py-4
+            "
+            >
+              Conversation
+            </div>
+            <ConversationList conversations={[]}></ConversationList>
+          </div>
+        </div>
+      </aside>
     );
   }
   if (pathName.startsWith(`/${RouteKeys.People}`)) {
-    return <UserList id={RouteKeys.People}></UserList>;
+    return (
+      <aside
+        className="
+        fixed
+        inset-y-0
+        pb-20
+        lg:pb-0
+        lg:left-20
+        lg:w-80
+        lg:block
+        overflow-y-auto
+        border-r
+        border-gray-200
+        block
+        w-full
+        left-0
+      "
+      >
+        <div className="px-5">
+          <div className="flex-col">
+            <div
+              className="
+              sticky
+              top-0
+            bg-white
+              z-10
+              text-2xl
+              font-bold
+              text-neutral-800
+              py-4
+            "
+            >
+              People
+            </div>
+            <UserList id={RouteKeys.People} order="asc" pageSize={100} />
+          </div>
+        </div>
+      </aside>
+    );
   }
 
   return null;
