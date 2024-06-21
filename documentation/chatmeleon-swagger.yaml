@@ -405,7 +405,7 @@ paths:
                 items:
                   type: object
                   properties:
-                    userId:
+                    id:
                       $ref: "#/components/schemas/ObjectId"
                     name:
                       type: string

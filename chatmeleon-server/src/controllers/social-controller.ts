@@ -61,7 +61,7 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
       }
 
       const outData = {
-        userId: user.id,
+        id: user.id,
         name: user.name,
         image: user.image,
         relationshipType: relationship?.type,
@@ -75,10 +75,10 @@ const getUsersByNameWithPagination = async (req: Request, res: Response) => {
     const filterPaginatedResults = paginatedResults.filter(
       (item) => item !== undefined
     );
-    filterPaginatedResults.sort((a, b) => a!.userId.localeCompare(b!.userId));
+    filterPaginatedResults.sort((a, b) => a!.id.localeCompare(b!.id));
 
     const startIndex = cursor
-      ? filterPaginatedResults.findIndex((item) => item!.userId === cursor) + 1
+      ? filterPaginatedResults.findIndex((item) => item!.id === cursor) + 1
       : 0;
 
     const results = await prisma.$transaction(async (tx) => {
