@@ -1,5 +1,4 @@
-export type PeopleUser = {
-  userId: string;
+export type PeopleUser = BaseObject & {
   name: string;
   image: string;
   relationshipType: string;

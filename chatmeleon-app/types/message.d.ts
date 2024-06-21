@@ -1,5 +1,4 @@
-export type Message = {
-  id: string;
+export type Message = BaseObject & {
   body?: string;
   image?: string;
   createdAt: Date;

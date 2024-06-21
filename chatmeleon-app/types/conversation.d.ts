@@ -1,5 +1,4 @@
-export type Conversation = {
-  conversationId: string;
+export type Conversation = BaseEntity & {
   name: string;
   image: string;
 };
