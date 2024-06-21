@@ -75,7 +75,7 @@ export default function InnerSidebar() {
               className="
               sticky
               top-0
-            bg-white
+              bg-white
               z-10
               text-2xl
               font-bold
@@ -85,7 +85,7 @@ export default function InnerSidebar() {
             >
               People
             </div>
-            <UserList id={RouteKeys.People} order="asc" pageSize={100} />
+            <UserList id={RouteKeys.People} pageSize={10} />
           </div>
         </div>
       </aside>
