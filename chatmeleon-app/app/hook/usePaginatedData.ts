@@ -52,10 +52,9 @@ const usePaginatedData = <T extends BaseObject>(
   } = useInfiniteQuery(["paginatedData", endpoint], fetchPaginatedData, {
     getNextPageParam: (lastPage) => {
       // Implement your logic to determine if there is a next page
-      // For example, if lastPage has a property indicating more pages
       // Return the cursor for the next page (ID of the last item in the current page)
-      const lastItem = lastPage[lastPage.length - 1];
-      return lastItem ? lastItem.id : undefined; // Replace 'id' with the actual field name used as the cursor
+      const lastItem = lastPage[pageSize - 1];
+      return lastItem ? lastItem.id : undefined;
     },
     enabled: !!session, // Enable query only when session exists
     staleTime: 1000 * 60 * 5,
