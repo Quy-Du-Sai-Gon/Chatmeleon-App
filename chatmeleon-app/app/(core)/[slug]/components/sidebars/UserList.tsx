@@ -1,101 +1,66 @@
-import { useQuery } from "react-query";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { PeopleUser } from "@/types/people-user";
 import UserItem from "./UserItem";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { useState } from "react";
-import { QueryClient } from "react-query";
 import LoadingUserList from "../loadings/LoadingUserList";
-const queryClient = new QueryClient();
+import usePaginatedData from "@/app/hook/usePaginatedData";
+import InfiniteScrollTrigger from "./InfiniteScrollTrigger"; // Import the InfiniteScrollTrigger component
+import LoadingUserInfiniteScroll from "../loadings/LoadingUserInfiniteScroll";
+
 interface UserListProps {
   id: string;
+  pageSize: number;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const UserList: React.FC<UserListProps> = ({ id, pageSize }) => {
+  const { status: sessionStatus } = useSession();
 
-const fetchPeopleUsers = async (
-  chatToken: string | undefined
-): Promise<PeopleUser[]> => {
-  const getMessageURL = `${BACKEND_URL}/users/search?pageSize=10`;
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = usePaginatedData<PeopleUser>("/users/search", pageSize);
 
-  try {
-    const res = await fetch(getMessageURL, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${chatToken}`,
-      },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return data;
-    } else {
-      console.error("Error fetching users:", res.status);
-      return [];
-    }
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return [];
-  }
-};
-
-const UserList: React.FC<UserListProps> = ({ id }) => {
-  const session = useSession();
-  const chatToken = session.data?.chatToken;
-  const { data: userData } = useQuery(
-    [id],
-    async () => await fetchPeopleUsers(chatToken),
-    {
-      staleTime: 1000 * 60 * 5,
-    }
-  );
-
-  if (!userData) {
-    // Display a loading state or placeholder while userData is undefined
+  if (sessionStatus === "loading") {
     return <LoadingUserList />;
   }
 
+  if (sessionStatus === "unauthenticated") {
+    return <div>Please log in to see the user list.</div>;
+  }
+
+  if (status === "loading") {
+    return <LoadingUserList />;
+  }
+
+  if (error) {
+    return <div>Error fetching user data</div>;
+  }
+
   return (
-    <aside
-      className="
-        fixed
-        inset-y-0
-        pb-20
-        lg:pb-0
-        lg:left-20
-        lg:w-80
-        lg:block
-        overflow-y-auto
-        border-r
-        border-gray-200
-        block
-        w-full
-        left-0
-      "
-    >
-      <div className="px-5">
-        <div className="flex-col">
-          <div
-            className="
-              text-2xl
-              font-bold
-              text-neutral-800
-              py-4
-            "
-          >
-            People
-          </div>
-        </div>
-        {userData.map((item) => (
-          <Link
-            key={item.userId}
-            href={`/people/chat/${item.originalConversationId}`}
-          >
-            <UserItem key={item.userId} user={item} />
-          </Link>
-        ))}
-      </div>
-    </aside>
+    <div>
+      {data.map((item) => (
+        <Link
+          key={item.id}
+          href={`/people/chat/${item.originalConversationId}`}
+        >
+          <UserItem key={item.id} user={item} />
+        </Link>
+      ))}
+      {isFetchingNextPage && <LoadingUserInfiniteScroll />}
+      <InfiniteScrollTrigger
+        onVisible={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        isLoading={isFetchingNextPage}
+      />
+    </div>
   );
 };
 
