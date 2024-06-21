@@ -9,7 +9,6 @@ import { RouteKeys } from "@/types/route-key.d";
 
 export default function InnerSidebar() {
   const pathName = usePathname();
-  const [conversationData, setConversationData] = useState<Conversation[]>([]);
   if (pathName.startsWith(`/${RouteKeys.Conversations}`)) {
     return (
       <aside
@@ -44,7 +43,10 @@ export default function InnerSidebar() {
             >
               Conversation
             </div>
-            <ConversationList conversations={[]}></ConversationList>
+            <ConversationList
+              id={RouteKeys.Conversations}
+              pageSize={15}
+            ></ConversationList>
           </div>
         </div>
       </aside>
@@ -85,7 +87,7 @@ export default function InnerSidebar() {
             >
               People
             </div>
-            <UserList id={RouteKeys.People} pageSize={10} />
+            <UserList id={RouteKeys.People} pageSize={15} />
           </div>
         </div>
       </aside>
