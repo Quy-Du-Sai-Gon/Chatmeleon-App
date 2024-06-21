@@ -1,4 +1,4 @@
-export type Conversation = BaseEntity & {
+export type Conversation = BaseObject & {
   name: string;
   image: string;
 };
