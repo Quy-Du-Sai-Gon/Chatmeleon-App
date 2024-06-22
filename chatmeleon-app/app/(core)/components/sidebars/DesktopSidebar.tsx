@@ -79,7 +79,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ currentUser }) => {
                 transition
             "
         >
-          <Avatar user={currentUser} />
+          <Avatar imageURL={currentUser.image} />
         </div>
       </nav>
     </div>

@@ -24,7 +24,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
             cursor-pointer
             "
     >
-      <Avatar user={user} />
+      <Avatar imageURL={user.image} />
       <div className="min-w-0 flex-1">
         <div className="focus:outline-none">
           <div

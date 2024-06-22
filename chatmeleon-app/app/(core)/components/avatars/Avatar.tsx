@@ -2,10 +2,10 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import StatusBubble from "../status/StatusBubble";
 interface AvatarProps {
-  user?: any;
+  imageURL?: string | null;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ user }) => {
+const Avatar: React.FC<AvatarProps> = ({ imageURL }) => {
   return (
     <div className="relative">
       <div
@@ -22,7 +22,7 @@ const Avatar: React.FC<AvatarProps> = ({ user }) => {
       >
         <Image
           alt="User Avatar"
-          src={user?.image || "/images/avatar/LavenderLizard_BG.png"}
+          src={imageURL || "/images/avatar/LavenderLizard_BG.png"}
           fill
         />
       </div>
