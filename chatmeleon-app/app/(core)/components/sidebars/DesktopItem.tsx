@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface DesktopItemProps {
   label: string;
@@ -21,10 +22,16 @@ const DesktopItem: React.FC<DesktopItemProps> = ({
       return onClick();
     }
   };
+
+  const pathName = usePathname();
+  // Extract the remaining segments of the current path
+  const segments = pathName.split("/").slice(2).join("/");
+  const newHref = `${href}/${segments}`;
+
   return (
     <li onClick={handleClick}>
       <Link
-        href={href}
+        href={newHref}
         className={clsx(
           `
             group
