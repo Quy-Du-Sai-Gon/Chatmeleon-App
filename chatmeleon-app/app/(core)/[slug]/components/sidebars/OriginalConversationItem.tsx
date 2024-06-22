@@ -1,18 +1,17 @@
 "use client";
 
 import Avatar from "@/app/(core)/components/avatars/Avatar";
-import { Conversation } from "@/types/conversation";
-
+import { ConversationChatList } from "@/types/conversation-chat-list";
+import { useState } from "react";
+import { formatTimeAgo } from "@/app/libs/dateTimeUtils";
 interface OriginalConversationItemProps {
-  conversation: Conversation;
+  conversation: ConversationChatList;
 }
 
 const OriginalConversationItem: React.FC<OriginalConversationItemProps> = ({
   conversation,
 }) => {
-  // Mock data for demonstration purposes
-  const lastMessage = "Hey! How are you?";
-  const timestamp = new Date().toLocaleString(); // Replace with actual timestamp logic
+  const [lastMessage, setLastMessage] = useState(conversation.lastMessage);
 
   return (
     <div
@@ -30,17 +29,30 @@ const OriginalConversationItem: React.FC<OriginalConversationItemProps> = ({
         cursor-pointer
       "
     >
-      <Avatar user={conversation} />{" "}
+      <Avatar imageURL={conversation.image} />{" "}
       {/* Assuming conversation.user contains user information */}
       <div className="min-w-0 flex-1">
         <div className="focus:outline-none">
           <div className="flex justify-between items-center mb-1">
             <p className="text-sm font-medium text-gray-900">
-              {conversation.id}
+              {conversation.name ? conversation.name : "Chatmeleon User"}
             </p>
           </div>
-          <p className="text-sm text-gray-500">{lastMessage}</p>
-          <p className="text-xs text-gray-500">{timestamp}</p>
+          <p
+            className="text-sm text-gray-500"
+            style={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {lastMessage?.sender.name}: {lastMessage?.body}
+          </p>
+          <p className="text-xs text-gray-500">
+            {lastMessage?.createdAt
+              ? formatTimeAgo(new Date(lastMessage?.createdAt))
+              : "undefined"}
+          </p>
         </div>
       </div>
     </div>
