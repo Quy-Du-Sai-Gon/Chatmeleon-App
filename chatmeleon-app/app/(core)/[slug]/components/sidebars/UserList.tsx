@@ -46,7 +46,11 @@ const UserList: React.FC<UserListProps> = ({ id, pageSize }) => {
       {data.map((item) => (
         <Link
           key={item.id}
-          href={`/people/chat/${item.originalConversationId}`}
+          href={
+            item.originalConversationId
+              ? `/people/chat/${item.originalConversationId}`
+              : "/people/chat/new"
+          }
         >
           <UserItem key={item.id} user={item} />
         </Link>
