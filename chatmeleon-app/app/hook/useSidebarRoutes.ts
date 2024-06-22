@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import useConversations from "./useConversations";
 
@@ -8,7 +8,7 @@ import { HiArrowLeftOnRectangle, HiUsers } from "react-icons/hi2";
 import { RouteKeys } from "@/types/route-key.d";
 
 const useSidebarRoutes = () => {
-  const { pathname } = useParams();
+  const pathName = usePathname();
   const { conversationId } = useConversations();
 
   const routes = useMemo(
@@ -17,13 +17,13 @@ const useSidebarRoutes = () => {
         label: "Chat",
         href: `/${RouteKeys.Conversations}`,
         icon: HiChat,
-        active: pathname == "/conversations" || !!conversationId,
+        active: pathName.includes(`/${RouteKeys.Conversations}`),
       },
       {
         label: "People",
         href: `/${RouteKeys.People}`,
         icon: HiUsers,
-        active: pathname == "/people",
+        active: pathName.includes(`/${RouteKeys.People}`),
       },
       {
         label: "Logout",
@@ -32,7 +32,7 @@ const useSidebarRoutes = () => {
         icon: HiArrowLeftOnRectangle,
       },
     ],
-    [pathname, conversationId]
+    [pathName, conversationId]
   );
 
   return routes;
