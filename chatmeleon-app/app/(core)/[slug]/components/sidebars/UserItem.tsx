@@ -1,10 +1,9 @@
 "use client";
 
 import Avatar from "@/app/(core)/components/avatars/Avatar";
-import { PeopleUser } from "@/types/people-user";
-
+import { UserPeopleList } from "@/types/people-user-list";
 interface UserItemProps {
-  user: PeopleUser;
+  user: UserPeopleList;
 }
 
 const UserItem: React.FC<UserItemProps> = ({ user }) => {
