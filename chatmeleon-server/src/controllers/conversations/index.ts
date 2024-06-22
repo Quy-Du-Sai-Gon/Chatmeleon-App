@@ -42,20 +42,113 @@ const get = async (req: Request, res: Response) => {
       groupAvatar: true,
       isGroup: true,
       messagesIds: false,
-      userIds: false,
+      userIds: true,
     },
   });
 
-  // Ensure the response type is specification-compliant
+  // Fetch the last message details for each conversation
+  const lastMessageIds = conversations.map((conv) => conv.lastMessageId);
+  const lastMessages = await prisma.message.findMany({
+    where: {
+      id: {
+        in: lastMessageIds,
+      },
+    },
+    select: {
+      id: true,
+      body: true,
+      image: true,
+      createdAt: true,
+      sender: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  // Map it to a key-value pairs object to faster look up
+  const lastMessagesMap = lastMessages.reduce((acc, message) => {
+    acc[message.id] = message;
+    return acc;
+  }, {} as Record<string, (typeof lastMessages)[0]>);
+
   type ResponseType = Array<{
     id: string;
-    lastMessageId: string;
-    name?: string;
-    groupAvatar?: string;
+    name?: string | null;
+    image?: string | null;
     isGroup: boolean;
+    lastMessage?: {
+      body?: string | null;
+      image?: string | null;
+      createdAt: Date;
+      sender: {
+        id: string;
+        name?: string | null;
+      };
+    };
   }>;
 
-  const response = conversations.map(prunedObject);
+  const combined_data: ResponseType = await Promise.all(
+    conversations.map(async (conversation) => {
+      // Check if conversation is non-group and has exactly 2 users
+      if (!conversation.isGroup && conversation.userIds.length === 2) {
+        const otherUserId = conversation.userIds.find((uid) => uid !== userId);
+        if (otherUserId) {
+          const otherUser = await prisma.user.findFirst({
+            where: {
+              id: otherUserId,
+            },
+            select: {
+              name: true,
+              image: true,
+            },
+          });
+          return {
+            id: conversation.id,
+            name: otherUser?.name,
+            image: otherUser?.image, // Assuming 'image' is the field for avatar
+            isGroup: false,
+            lastMessage: lastMessagesMap[conversation.lastMessageId]
+              ? {
+                  body: lastMessagesMap[conversation.lastMessageId].body,
+                  image: lastMessagesMap[conversation.lastMessageId].image,
+                  createdAt:
+                    lastMessagesMap[conversation.lastMessageId].createdAt,
+                  sender: {
+                    id: lastMessagesMap[conversation.lastMessageId].sender.id,
+                    name: lastMessagesMap[conversation.lastMessageId].sender
+                      .name,
+                  },
+                }
+              : undefined,
+          };
+        }
+      }
+
+      // For group conversations or non-group with more than 2 users, use original conversation details
+      return {
+        id: conversation.id,
+        name: conversation.name,
+        image: conversation.groupAvatar,
+        isGroup: conversation.isGroup,
+        lastMessage: lastMessagesMap[conversation.lastMessageId]
+          ? {
+              body: lastMessagesMap[conversation.lastMessageId].body,
+              image: lastMessagesMap[conversation.lastMessageId].image,
+              createdAt: lastMessagesMap[conversation.lastMessageId].createdAt,
+              sender: {
+                id: lastMessagesMap[conversation.lastMessageId].sender.id,
+                name: lastMessagesMap[conversation.lastMessageId].sender.name,
+              },
+            }
+          : undefined,
+      };
+    })
+  );
+
+  const response = combined_data.map(prunedObject);
 
   res.json(response satisfies ResponseType); // Send the fetched conversations in the response
 };
