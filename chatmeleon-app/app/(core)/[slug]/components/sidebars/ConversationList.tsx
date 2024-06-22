@@ -1,5 +1,5 @@
 import usePaginatedData from "@/app/hook/usePaginatedData";
-import { Conversation } from "@/types/conversation";
+import { ConversationChatList } from "@/types/conversation-chat-list";
 import { useSession } from "next-auth/react";
 import LoadingConversationList from "../loadings/LoadingConversationList";
 import OriginalConversationItem from "./OriginalConversationItem";
@@ -25,7 +25,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
     isFetching,
     isFetchingNextPage,
     status,
-  } = usePaginatedData<Conversation>("/conversations", pageSize);
+  } = usePaginatedData<ConversationChatList>("/conversations", pageSize);
 
   if (sessionStatus === "loading") {
     return <LoadingConversationList />;
