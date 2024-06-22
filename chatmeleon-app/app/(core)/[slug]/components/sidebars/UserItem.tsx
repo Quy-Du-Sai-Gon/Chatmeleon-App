@@ -17,7 +17,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
             space-x-3
             bg-white
             p-3
-            hover:gb-neutral-100
+            hover:bg-gray-100
             rounded-lg
             transition
             cursor-pointer

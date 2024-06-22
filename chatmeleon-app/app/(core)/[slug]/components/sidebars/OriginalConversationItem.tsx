@@ -29,7 +29,7 @@ const OriginalConversationItem: React.FC<OriginalConversationItemProps> = ({
         cursor-pointer
       "
     >
-      <Avatar imageURL={conversation.image} />{" "}
+      <Avatar imageURL={conversation.image} />
       {/* Assuming conversation.user contains user information */}
       <div className="min-w-0 flex-1">
         <div className="focus:outline-none">
