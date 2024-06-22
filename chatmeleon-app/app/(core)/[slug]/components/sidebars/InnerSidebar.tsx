@@ -1,8 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Conversation } from "@/types/conversation-conversation-list";
 import UserList from "./UserList";
 import ConversationList from "./ConversationList";
 import { RouteKeys } from "@/types/route-key.d";
