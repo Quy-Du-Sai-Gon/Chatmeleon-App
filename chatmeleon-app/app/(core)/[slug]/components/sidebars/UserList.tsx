@@ -1,12 +1,11 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { PeopleUser } from "@/types/people-user";
+import { UserPeopleList } from "@/types/people-user-list";
 import UserItem from "./UserItem";
 import LoadingUserList from "../loadings/LoadingUserList";
 import usePaginatedData from "@/app/hook/usePaginatedData";
 import InfiniteScrollTrigger from "./InfiniteScrollTrigger"; // Import the InfiniteScrollTrigger component
 import LoadingUserInfiniteScroll from "../loadings/LoadingUserInfiniteScroll";
-
 interface UserListProps {
   id: string;
   pageSize: number;
@@ -23,7 +22,7 @@ const UserList: React.FC<UserListProps> = ({ id, pageSize }) => {
     isFetching,
     isFetchingNextPage,
     status,
-  } = usePaginatedData<PeopleUser>("/users/search", pageSize);
+  } = usePaginatedData<UserPeopleList>("/users/search", pageSize);
 
   if (sessionStatus === "loading") {
     return <LoadingUserList />;
